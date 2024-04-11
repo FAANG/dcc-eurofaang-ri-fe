@@ -31,6 +31,7 @@ export class UserLoginComponent {
     this.authService.logIn(user.username, user.password).subscribe({
       next: (data) => {
         console.log(data);
+        this.authService.setLoggedInUser(data);
       },
       error: (error) => {
         console.log(error);
