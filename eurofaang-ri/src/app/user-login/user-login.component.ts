@@ -4,6 +4,7 @@ import {AuthService} from "../auth.service";
 import {UserCredentials} from "../auth";
 import {MatInputModule} from "@angular/material/input";
 import {MatButtonModule} from "@angular/material/button";
+import {Router} from "@angular/router";
 
 @Component({
   selector: 'app-user-login',
@@ -18,7 +19,9 @@ import {MatButtonModule} from "@angular/material/button";
 })
 export class UserLoginComponent {
   logInForm: FormGroup;
-  constructor(private formBuilder: FormBuilder, private authService: AuthService) {
+  constructor(private formBuilder: FormBuilder,
+              private authService: AuthService,
+              private router: Router) {
     this.logInForm = this.formBuilder.group({
       username: ['', Validators.required],
       password: ['', Validators.required],
@@ -30,8 +33,8 @@ export class UserLoginComponent {
   logInUser(user: UserCredentials): void {
     this.authService.logIn(user.username, user.password).subscribe({
       next: (data) => {
-        console.log(data);
         this.authService.setLoggedInUser(data);
+        this.router.navigateByUrl(`/user-profile/${data.id}`);
       },
       error: (error) => {
         console.log(error);

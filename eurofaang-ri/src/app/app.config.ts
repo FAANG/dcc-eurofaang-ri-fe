@@ -1,16 +1,21 @@
-import {ApplicationConfig, importProvidersFrom} from '@angular/core';
+import {ApplicationConfig, importProvidersFrom, Provider} from '@angular/core';
 import { provideRouter } from '@angular/router';
 
 import { routes } from './app.routes';
 import { provideClientHydration } from '@angular/platform-browser';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
-import {HttpClientModule} from "@angular/common/http";
+import { provideHttpClient, withFetch, withInterceptors} from "@angular/common/http";
+import {TokenInterceptor} from "./token.interceptor";
 
+
+
+// @ts-ignore
 export const appConfig: ApplicationConfig = {
   providers: [
     provideRouter(routes),
     provideClientHydration(),
     provideAnimationsAsync(),
-    importProvidersFrom(HttpClientModule)
+    importProvidersFrom(),
+    provideHttpClient(withFetch(), withInterceptors([TokenInterceptor])),
   ]
 };
