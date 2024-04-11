@@ -1,21 +1,25 @@
 import { Component } from '@angular/core';
-import {RouterOutlet} from "@angular/router";
-import {FormBuilder, FormGroup, Validators} from "@angular/forms";
+import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from "@angular/forms";
 import {AuthService} from "../auth.service";
 import {UserCredentials} from "../auth";
-import {HttpClientModule} from "@angular/common/http";
+import {MatInputModule} from "@angular/material/input";
+import {MatButtonModule} from "@angular/material/button";
 
 @Component({
   selector: 'app-user-login',
   standalone: true,
-  imports: [HttpClientModule],
+  imports: [
+    ReactiveFormsModule,
+    MatInputModule,
+    MatButtonModule,
+  ],
   templateUrl: './user-login.component.html',
   styleUrl: './user-login.component.css'
 })
 export class UserLoginComponent {
-  loginForm: FormGroup;
+  logInForm: FormGroup;
   constructor(private formBuilder: FormBuilder, private authService: AuthService) {
-    this.loginForm = this.formBuilder.group({
+    this.logInForm = this.formBuilder.group({
       username: ['', Validators.required],
       password: ['', Validators.required],
     });
@@ -34,11 +38,11 @@ export class UserLoginComponent {
     });
   }
 
-  onSubmit(formData: UserCredentials): void {
-    if (this.loginForm.invalid) {
-      console.log(this.loginForm.errors);
+  onSubmit(): void {
+    if (this.logInForm.invalid) {
+      console.log(this.logInForm.errors);
     } else {
-      this.logInUser(formData);
+      this.logInUser(this.logInForm.value);
     }
   }
 }
