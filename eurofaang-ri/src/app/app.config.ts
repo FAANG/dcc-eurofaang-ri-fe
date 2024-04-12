@@ -6,6 +6,7 @@ import { provideClientHydration } from '@angular/platform-browser';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { provideHttpClient, withFetch, withInterceptors} from "@angular/common/http";
 import {TokenInterceptor} from "./token.interceptor";
+import { PermissionsService } from "./auth.guard";
 
 
 
@@ -17,5 +18,6 @@ export const appConfig: ApplicationConfig = {
     provideAnimationsAsync(),
     importProvidersFrom(),
     provideHttpClient(withFetch(), withInterceptors([TokenInterceptor])),
+    PermissionsService
   ]
 };
