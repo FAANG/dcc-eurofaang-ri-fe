@@ -14,4 +14,3 @@ FROM nginx:1.15
 COPY --from=build-stage /app/dist/eurofaang-ri/  /usr/share/nginx/html/
 ##Copy default nginx configuration
 COPY ./default.conf /etc/nginx/conf.d/default.conf
-EXPOSE 80
