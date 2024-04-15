@@ -1,7 +1,7 @@
 ## ORIGINAL Stage 0, "build-stage", based on Node.js, to build and compile the frontend
 FROM node:20.12.1 as build-stage
 WORKDIR /app
-COPY eurofaang-ri/package*.json /app
+COPY eurofaang-ri/package*.json /app/
 RUN npm install
 #
 COPY ./eurofaang-ri /app
