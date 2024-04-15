@@ -11,6 +11,6 @@ RUN npm run build
 ## Stage 1, based on Nginx, to have only the compiled app, ready for production with Nginx
 FROM nginx:1.15
 ##Copy ci-dashboard-dist
-COPY --from=build-stage /app/dist/eurofaang-ri  /usr/share/nginx/html
+COPY --from=build-stage /app/dist/eurofaang-ri/*  /usr/share/nginx/html/
 ##Copy default nginx configuration
 COPY ./default.conf /etc/nginx/conf.d/default.conf
