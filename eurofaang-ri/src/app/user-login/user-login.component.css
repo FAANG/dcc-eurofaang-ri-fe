@@ -1,5 +1,12 @@
-:host {
+.login-form-container {
   display: flex;
-  flex-direction: column;
-  align-items: flex-start;
+  justify-content: center;
+}
+
+h2 {
+  text-align: center;
+}
+
+.item {
+  margin-top: 15px;
 }
