@@ -9,19 +9,22 @@
       <mat-card-content>
         <mat-list role="list">
           <mat-list-item role="listitem">
-            <b>Email: </b>alexey&#64;ebi.ac.uk
+            <b>Email: </b>{{userProfile.email}}
           </mat-list-item>
           <mat-list-item role="listitem">
-            <b>Phone: </b> NA
+            <b>Phone: </b> {{userProfile.phone_number}}
           </mat-list-item>
           <mat-list-item role="listitem">
-            <b>Organization name: </b>EMBL-EBI
+            <b>Organization name: </b>{{userProfile.organization_name}}
           </mat-list-item>
           <mat-list-item role="listitem">
-            <b>Organization country: </b>UK
+            <b>Organization address: </b>{{userProfile.organization_address}}
           </mat-list-item>
           <mat-list-item role="listitem">
-            <b>Role: </b>Principal Investigator
+            <b>Organization country: </b>{{userProfile.organization_country}}
+          </mat-list-item>
+          <mat-list-item role="listitem">
+            <b>Role: </b>{{userProfile.role}}
           </mat-list-item>
         </mat-list>
       </mat-card-content>
