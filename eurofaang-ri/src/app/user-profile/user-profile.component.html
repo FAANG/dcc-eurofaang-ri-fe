@@ -1,9 +1,68 @@
-<div *ngIf="userProfile">
-  <h1 class="profile-heading">User profile</h1>
-  <mat-card class="profile-card">
-    <mat-card-header>
-      <mat-card-title>{{ userProfile?.first_name }} {{ userProfile?.last_name }}</mat-card-title>
-      <mat-card-subtitle>{{ userProfile?.username }}</mat-card-subtitle>
-    </mat-card-header>
-  </mat-card>
+<div *ngIf="userProfile" class="user-profile-container">
+  <div class="item">
+    <h1 class="profile-heading">User profile</h1>
+    <mat-card class="profile-card">
+      <mat-card-header>
+        <mat-card-title>{{ userProfile?.first_name }} {{ userProfile?.last_name }}</mat-card-title>
+        <mat-card-subtitle>{{ userProfile?.username }}</mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        <mat-list role="list">
+          <mat-list-item role="listitem">
+            <b>Email: </b>alexey&#64;ebi.ac.uk
+          </mat-list-item>
+          <mat-list-item role="listitem">
+            <b>Phone: </b> NA
+          </mat-list-item>
+          <mat-list-item role="listitem">
+            <b>Organization name: </b>EMBL-EBI
+          </mat-list-item>
+          <mat-list-item role="listitem">
+            <b>Organization country: </b>UK
+          </mat-list-item>
+          <mat-list-item role="listitem">
+            <b>Role: </b>Principal Investigator
+          </mat-list-item>
+        </mat-list>
+      </mat-card-content>
+    </mat-card>
+  </div>
+  <div class="item">
+    <h1 class="profile-heading">
+      TNA Applications
+      <button mat-flat-button color="primary">Start New Application</button>
+    </h1>
+    <table mat-table [dataSource]="dataSource" class="mat-elevation-z8">
+
+      <!--- Note that these columns can be defined in any order.
+            The actual rendered columns are set as a property on the row definition" -->
+
+      <!-- Position Column -->
+      <ng-container matColumnDef="position">
+        <th mat-header-cell *matHeaderCellDef> No. </th>
+        <td mat-cell *matCellDef="let element"> {{element.position}} </td>
+      </ng-container>
+
+      <!-- Name Column -->
+      <ng-container matColumnDef="title">
+        <th mat-header-cell *matHeaderCellDef> Title </th>
+        <td mat-cell *matCellDef="let element"> {{element.title}} </td>
+      </ng-container>
+
+      <!-- Weight Column -->
+      <ng-container matColumnDef="pi">
+        <th mat-header-cell *matHeaderCellDef> Principal Investigator </th>
+        <td mat-cell *matCellDef="let element"> {{element.pi}} </td>
+      </ng-container>
+
+      <!-- Symbol Column -->
+      <ng-container matColumnDef="connected">
+        <th mat-header-cell *matHeaderCellDef> Connected to another TNA </th>
+        <td mat-cell *matCellDef="let element"> {{element.connected}} </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+    </table>
+  </div>
 </div>

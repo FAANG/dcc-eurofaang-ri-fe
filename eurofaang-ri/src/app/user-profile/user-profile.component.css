@@ -1,8 +1,15 @@
-.profile-heading {
-  margin: 20px;
+.user-profile-container {
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
 }
 
-.profile-card {
-  max-width: 400px;
-  margin: 20px;
+h2 {
+  text-align: center;
+}
+
+.item {
+  margin-top: 15px;
+  margin-left: 15px;
+  margin-right: 15px;
 }
