@@ -1,0 +1,344 @@
+<div class="main-container">
+  <div class="item">
+    <form [formGroup]="newForm" (ngSubmit)="onSubmit()">
+      <h1 class="form-heading">TNA User Information</h1>
+      <hr/>
+      <mat-card class="profile-card">
+        <mat-card-header>
+          <mat-card-title>Principal Investigator</mat-card-title>
+          <mat-card-subtitle>Please provide the following information for the principal investigator</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content>
+          <mat-form-field appearance="fill">
+            <mat-label>First name</mat-label>
+            <input matInput formControlName="firstname">
+          </mat-form-field>
+          <br>
+          <mat-form-field appearance="fill">
+            <mat-label>Last name</mat-label>
+            <input matInput formControlName="lastname">
+          </mat-form-field>
+          <br>
+          <mat-form-field appearance="fill">
+            <mat-label>Phone</mat-label>
+            <input matInput formControlName="phone">
+          </mat-form-field>
+          <span
+            *ngIf="!newForm.get('phone')?.valid && newForm.get('phone')?.touched"
+            class="help-block">Please enter a valid phone number!
+          </span>
+          <br>
+          <mat-form-field appearance="fill">
+            <mat-label>Email</mat-label>
+            <input matInput formControlName="email">
+          </mat-form-field>
+          <span
+            *ngIf="!newForm.get('email')?.valid && newForm.get('email')?.touched"
+            class="help-block">Please enter a valid email!
+          </span>
+          <br>
+
+          <div formGroupName="organisation">
+            <mat-form-field appearance="fill">
+              <mat-label>Organisation name</mat-label>
+              <input matInput formControlName="organisationName">
+            </mat-form-field>
+            <br>
+            <mat-form-field appearance="fill">
+              <mat-label>Organisation address</mat-label>
+              <textarea matInput
+                        formControlName="organisationAddress"
+                        cdkTextareaAutosize
+                        #autosize="cdkTextareaAutosize"
+                        rows="3">
+
+              </textarea>
+            </mat-form-field>
+            <br>
+            <mat-form-field appearance="fill">
+              <mat-label>Organisation country</mat-label>
+              <input matInput formControlName="organisationCountry">
+            </mat-form-field>
+            <br>
+          </div>
+
+
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="profile-card">
+        <mat-card-header>
+          <mat-card-title>Additional participants ---- To have multiple participants???</mat-card-title>
+          <mat-card-subtitle>If applicable, please provide for each additional participant the same information
+            requested for the principal investigator
+          </mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content>
+          <mat-form-field appearance="fill">
+            <mat-label>First name</mat-label>
+            <input matInput formControlName="firstname">
+          </mat-form-field>
+          <br>
+          <mat-form-field appearance="fill">
+            <mat-label>Last name</mat-label>
+            <input matInput formControlName="lastname">
+          </mat-form-field>
+          <br>
+          <mat-form-field appearance="fill">
+            <mat-label>Phone</mat-label>
+            <input matInput formControlName="phone">
+          </mat-form-field>
+          <span
+            *ngIf="!newForm.get('phone')?.valid && newForm.get('phone')?.touched"
+            class="help-block">Please enter a valid phone number!
+          </span>
+          <br>
+          <mat-form-field appearance="fill">
+            <mat-label>Email</mat-label>
+            <input matInput formControlName="email">
+          </mat-form-field>
+          <span
+            *ngIf="!newForm.get('email')?.valid && newForm.get('email')?.touched"
+            class="help-block">Please enter a valid email!
+          </span>
+          <br>
+
+          <div formGroupName="organisation">
+            <mat-form-field appearance="fill">
+              <mat-label>Organisation name</mat-label>
+              <input matInput formControlName="organisationName">
+            </mat-form-field>
+            <br>
+            <mat-form-field appearance="fill">
+              <mat-label>Organisation address</mat-label>
+              <input matInput formControlName="organisationAddress">
+            </mat-form-field>
+            <br>
+            <mat-form-field appearance="fill">
+              <mat-label>Organisation country</mat-label>
+              <input matInput formControlName="organisationCountry">
+            </mat-form-field>
+            <br>
+          </div>
+
+        </mat-card-content>
+      </mat-card>
+
+      <h1 class="form-heading">TNA Project Information</h1>
+      <hr/>
+      <mat-card class="profile-card">
+        <mat-card-header>
+          <mat-card-title>Is this application connected to another application in the current call of PIGWEB?
+          </mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div formGroupName="projectInformation">
+            <mat-radio-group aria-label="Select an option" formControlName="applicationConnection">
+              <mat-radio-button value="no">No</mat-radio-button>
+              <mat-radio-button value="yes">Yes</mat-radio-button>
+            </mat-radio-group>
+            <div
+              *ngIf="newForm.get('projectInformation.applicationConnection')?.value === 'yes'"
+              class="connectedApplication">
+              If yes, please provide the principal investigator’s name and the project’s title.
+              <div>
+                <mat-form-field appearance="fill">
+                  <mat-label>Principal investigator</mat-label>
+                  <input matInput formControlName="associatedPrincipalInvestigator">
+                </mat-form-field>
+                <br>
+                <mat-form-field appearance="fill">
+                  <mat-label>Project title</mat-label>
+                  <input matInput formControlName="associatedProjectTitle">
+                </mat-form-field>
+                <br>
+              </div>
+            </div>
+
+            <div class="redHeader">
+              Please do not enter any personal or confidential data below.
+            </div>
+
+            <mat-form-field appearance="fill">
+              <mat-label>Project Title</mat-label>
+              <input matInput formControlName="projectTitle">
+            </mat-form-field>
+            <br>
+           <mat-card-title>Preferred research installation</mat-card-title>
+            <mat-card-subtitle>If applicable, please indicate your first, second and third preference of research installation.</mat-card-subtitle>
+
+
+            <div class="flex-container" formGroupName="preferredResearchInstallation">
+              <div class="flex-child">
+                <mat-form-field appearance="fill">
+                  <mat-label>Preference 1</mat-label>
+                  <mat-select formControlName="preference1">
+                    <mat-option *ngFor="let choice of firstPreferences" [value]="choice">{{choice}}</mat-option>
+                  </mat-select>
+                </mat-form-field>
+              </div>
+              <div class="flex-child">
+                <mat-form-field appearance="fill">
+                  <mat-label>Preference 2</mat-label>
+                  <mat-select formControlName="preference2">
+                    <mat-option *ngFor="let choice of secondPreferences" [value]="choice">{{choice}}</mat-option>
+                  </mat-select>
+                </mat-form-field>
+              </div>
+              <div class="flex-child">
+                <mat-form-field appearance="fill">
+                  <mat-label>Preference 3</mat-label>
+                  <mat-select formControlName="preference3">
+                    <mat-option *ngFor="let choice of thirdPreferences" [value]="choice">{{choice}}</mat-option>
+                  </mat-select>
+                </mat-form-field>
+              </div>
+            </div>
+
+            <hr/>
+
+            <div formGroupName="rationale">
+              <mat-card-title>RATIONALE</mat-card-title>
+              <mat-card-title>Context</mat-card-title>
+              <mat-card-subtitle>Describe the general context in which the project fits: outline the problem statement and indicate the relevance. Maximum 1500 characters, spaces included.</mat-card-subtitle>
+
+              <mat-form-field appearance="fill">
+                <mat-label>Click to add text</mat-label>
+                <textarea matInput
+                          formControlName="context"
+                          cdkTextareaAutosize
+                          #autosize="cdkTextareaAutosize"
+                          rows="3">
+              </textarea>
+              </mat-form-field>
+              <br>
+              <mat-card-title>Objective(s)</mat-card-title>
+              <mat-card-subtitle>Briefly state the overall objective(s) of your project. Maximum 500 characters, spaces included.</mat-card-subtitle>
+              <mat-form-field appearance="fill">
+                <mat-label>Click to add text</mat-label>
+                <textarea matInput
+                          formControlName="objective"
+                          cdkTextareaAutosize
+                          #autosize="cdkTextareaAutosize"
+                          rows="3">
+              </textarea>
+              </mat-form-field>
+              <br>
+              <mat-card-title>Impact</mat-card-title>
+              <mat-card-subtitle>Assess the expected impact of your project on sustainable pig production: describe the potential interest for the pig industry and the compliance with the European Green Deal. Maximum 1000 characters, spaces included.</mat-card-subtitle>
+              <mat-form-field appearance="fill">
+                <mat-label>Click to add text</mat-label>
+                <textarea matInput
+                          formControlName="impact"
+                          cdkTextareaAutosize
+                          #autosize="cdkTextareaAutosize"
+                          rows="3">
+              </textarea>
+              </mat-form-field>
+              <br>
+            </div>
+
+            <hr/>
+
+            <div formGroupName="scientificQuality">
+              <mat-card-title>SCIENTIFIC QUALITY</mat-card-title>
+
+              <mat-card-title>State of the art</mat-card-title>
+              <mat-card-subtitle>Present the state of the art: describe the current knowledge and indicate the gaps. Maximum 1500 characters, spaces included.</mat-card-subtitle>
+
+              <mat-form-field appearance="fill">
+                <mat-label>Click to add text</mat-label>
+                <textarea matInput
+                          formControlName="stateArt"
+                          cdkTextareaAutosize
+                          #autosize="cdkTextareaAutosize"
+                          rows="3">
+              </textarea>
+              </mat-form-field>
+              <br>
+              <mat-card-title>Scientific question and hypothesis</mat-card-title>
+              <mat-card-subtitle>Define a clear scientific question to which the project should provide an answer; formulate the appropriate hypothesis and describe the degree of innovation. Maximum 1500 characters, spaces included.</mat-card-subtitle>
+              <mat-form-field appearance="fill">
+                <mat-label>Click to add text</mat-label>
+                <textarea matInput
+                          formControlName="questionHypothesis"
+                          cdkTextareaAutosize
+                          #autosize="cdkTextareaAutosize"
+                          rows="3">
+              </textarea>
+              </mat-form-field>
+              <br>
+              <mat-card-title>Approach</mat-card-title>
+              <mat-card-subtitle>Briefly explain the approach to provide an answer to your scientific question: explain why the installation provided by PIGWEB offers added value and give an indication of the intended experimental design. Maximum 1000 characters, spaces included.</mat-card-subtitle>
+              <mat-form-field appearance="fill">
+                <mat-label>Click to add text</mat-label>
+                <textarea matInput
+                          formControlName="approach"
+                          cdkTextareaAutosize
+                          #autosize="cdkTextareaAutosize"
+                          rows="3">
+              </textarea>
+              </mat-form-field>
+              <br>
+            </div>
+
+
+            <hr/>
+
+            <div formGroupName="valorizationStrategy">
+              <mat-card-title>VALORIZATION STRATEGY</mat-card-title>
+              <mat-card-subtitle>Describe the intended valorization strategy: explain what the data will be used for (e.g. open data, scientific publication, patent or registration procedure). Maximum 1000 characters, spaces included.</mat-card-subtitle>
+
+              <mat-form-field appearance="fill">
+                <mat-label>Click to add text</mat-label>
+                <textarea matInput
+                          formControlName="strategy"
+                          cdkTextareaAutosize
+                          #autosize="cdkTextareaAutosize"
+                          rows="3">
+              </textarea>
+              </mat-form-field>
+            </div>
+
+
+
+
+
+            <br>
+
+
+
+          </div>
+
+
+
+
+        </mat-card-content>
+      </mat-card>
+
+
+      <button mat-flat-button color="primary" type="submit">Submit Form</button>
+    </form>
+
+
+    <form [formGroup]="newForm" (ngSubmit)="onSubmit()">
+      <!--      <mat-form-field appearance="fill">-->
+      <!--        <mat-label>First name</mat-label>-->
+      <!--        <input matInput formControlName="firstname">-->
+      <!--      </mat-form-field>-->
+      <br>
+      <!--      <mat-form-field appearance="fill">-->
+      <!--        <mat-label>Last name</mat-label>-->
+      <!--        <input matInput formControlName="lastname">-->
+      <!--      </mat-form-field>-->
+      <br>
+      <!--      <mat-form-field appearance="fill">-->
+      <!--        <mat-label>Phone</mat-label>-->
+      <!--        <input matInput formControlName="phone">-->
+      <!--      </mat-form-field>-->
+      <br>
+      <!--      <button mat-flat-button color="primary" type="submit">LOG IN</button>-->
+    </form>
+  </div>
+</div>
+

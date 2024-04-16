@@ -1,7 +1,7 @@
 import {Component, OnInit} from '@angular/core';
 import {UserProfile} from "../user-profile";
 import {UserProfileService} from "../user-profile.service";
-import {ActivatedRoute} from "@angular/router";
+import {ActivatedRoute, RouterLink} from "@angular/router";
 import {MatCardModule} from "@angular/material/card";
 import {CommonModule} from "@angular/common";
 import {MatButtonModule} from "@angular/material/button";
@@ -23,7 +23,7 @@ const ELEMENT_DATA: PeriodicElement[] = [
 @Component({
   selector: 'app-user-profile',
   standalone: true,
-  imports: [MatCardModule, CommonModule, MatButtonModule, MatListModule, MatTableModule],
+  imports: [MatCardModule, CommonModule, MatButtonModule, MatListModule, MatTableModule, RouterLink],
   templateUrl: './user-profile.component.html',
   styleUrl: './user-profile.component.css'
 })
