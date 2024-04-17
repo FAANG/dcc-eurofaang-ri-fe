@@ -1,14 +1,18 @@
-.item {
+.containerElement {
   margin-top: 15px;
   margin-left: 15px;
   margin-right: 15px;
+  width: 70%;
+  max-width: 900px;
+  background-color: #fbfcfd;
 }
 
 .main-container {
   display: flex;
   justify-content: center;
-  flex-direction: column;
+  /*flex-direction: column;*/
 }
+
 
 h2 {
   text-align: center;
@@ -25,6 +29,7 @@ input.ng-invalid.ng-touched {
 
 .form-heading {
   color: forestgreen;
+  margin-top: 20px;
 }
 
 mat-card-subtitle {
@@ -32,17 +37,26 @@ mat-card-subtitle {
 }
 
 .redHeader {
-  background-color: red;
+  background-color: #DC143C;
   color: white;
   text-align: center;
+  padding: 10px 0px;
+  margin-bottom: 20px;
 }
 
 mat-form-field {
-  width: 50%;
+  width: 90%;
+  input {
+
+  }
 }
 
 .flex-container {
   display: flex;
+  width: 90%;
+  height: auto;
+  margin: 0 auto;
+  position: relative;
 }
 
 .flex-child {
@@ -51,4 +65,67 @@ mat-form-field {
 
 .flex-child:first-child {
   margin-right: 10px;
+}
+
+.boldText{
+  width: 90%;
+  text-align: left;
+  font-weight: bold;
+  font-size: 16px;
+  height: auto;
+  margin: 0 auto;
+  position: relative;
+}
+
+.bolderText{
+  font-weight: bold;
+  font-size: 18px;
+  margin: 20px 0px;
+  width: 90%;
+  height: auto;
+  margin: 10px auto;
+  position: relative;
+  text-align: left;
+
+
+}
+
+.sectionInformation {
+  font-style: italic;
+  text-align: left;
+  color: #808080;
+  width: 90%;
+  height: auto;
+  margin: 10px auto;
+  position: relative;
+}
+
+.connectedApplication {
+  margin-top: 10px;
+}
+
+.fieldsPosition {
+  text-align: center;
+}
+
+.formButtons {
+  text-align: center;
+  margin-bottom: 40px;
+  width: 50%;
+}
+
+.leftAlign {
+  text-align: left;
+  width: 90%;
+  height: auto;
+  margin: 0 auto;
+  position: relative;
+}
+
+marginBottom {
+  margin-bottom: 10px;
+}
+
+hr {
+  margin-bottom: 15px;
 }

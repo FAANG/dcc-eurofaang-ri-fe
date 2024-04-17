@@ -1,14 +1,12 @@
 <div class="main-container">
-  <div class="item">
+  <div class="containerElement">
     <form [formGroup]="newForm" (ngSubmit)="onSubmit()">
       <h1 class="form-heading">TNA User Information</h1>
       <hr/>
-      <mat-card class="profile-card">
-        <mat-card-header>
-          <mat-card-title>Principal Investigator</mat-card-title>
-          <mat-card-subtitle>Please provide the following information for the principal investigator</mat-card-subtitle>
-        </mat-card-header>
-        <mat-card-content>
+      <div class="fieldsPosition">
+        <div class="fieldsPosition">
+          <div class="boldText">Principal Investigator</div>
+          <div class="sectionInformation">Please provide the following information for the principal investigator</div>
           <mat-form-field appearance="fill">
             <mat-label>First name</mat-label>
             <input matInput formControlName="firstname">
@@ -63,17 +61,17 @@
           </div>
 
 
-        </mat-card-content>
-      </mat-card>
+        </div>
+      </div>
 
-      <mat-card class="profile-card">
-        <mat-card-header>
-          <mat-card-title>Additional participants ---- To have multiple participants???</mat-card-title>
-          <mat-card-subtitle>If applicable, please provide for each additional participant the same information
-            requested for the principal investigator
-          </mat-card-subtitle>
-        </mat-card-header>
-        <mat-card-content>
+      <div class="fieldsPosition">
+
+        <div class="boldText">Additional participants ---- To have multiple participants???</div>
+        <div class="sectionInformation">If applicable, please provide for each additional participant the same information
+          requested for the principal investigator
+        </div>
+
+        <div>
           <mat-form-field appearance="fill">
             <mat-label>First name</mat-label>
             <input matInput formControlName="firstname">
@@ -121,26 +119,29 @@
             <br>
           </div>
 
-        </mat-card-content>
-      </mat-card>
+        </div>
+      </div>
 
       <h1 class="form-heading">TNA Project Information</h1>
       <hr/>
-      <mat-card class="profile-card">
-        <mat-card-header>
-          <mat-card-title>Is this application connected to another application in the current call of PIGWEB?
-          </mat-card-title>
-        </mat-card-header>
-        <mat-card-content>
-          <div formGroupName="projectInformation">
-            <mat-radio-group aria-label="Select an option" formControlName="applicationConnection">
-              <mat-radio-button value="no">No</mat-radio-button>
-              <mat-radio-button value="yes">Yes</mat-radio-button>
-            </mat-radio-group>
+      <div class="fieldsPosition">
+        <div class="boldText">Is this application connected to another application in the current call of PIGWEB?</div>
+        <div>
+          <div formGroupName="projectInformation" class="leftAlignxxx">
+            <div class="leftAlign">
+              <mat-radio-group aria-label="Select an option" formControlName="applicationConnection">
+                <mat-radio-button value="no">No</mat-radio-button>
+                <mat-radio-button value="yes">Yes</mat-radio-button>
+              </mat-radio-group>
+            </div>
+
             <div
               *ngIf="newForm.get('projectInformation.applicationConnection')?.value === 'yes'"
               class="connectedApplication">
-              If yes, please provide the principal investigator’s name and the project’s title.
+              <div class="leftAlign marginBottom">
+                If yes, please provide the principal investigator’s name and the project’s title.
+              </div>
+
               <div>
                 <mat-form-field appearance="fill">
                   <mat-label>Principal investigator</mat-label>
@@ -164,16 +165,15 @@
               <input matInput formControlName="projectTitle">
             </mat-form-field>
             <br>
-           <mat-card-title>Preferred research installation</mat-card-title>
-            <mat-card-subtitle>If applicable, please indicate your first, second and third preference of research installation.</mat-card-subtitle>
-
+            <div class="boldText">Preferred research installation</div>
+            <div class="sectionInformation">If applicable, please indicate your first, second and third preference of research installation.</div>
 
             <div class="flex-container" formGroupName="preferredResearchInstallation">
               <div class="flex-child">
                 <mat-form-field appearance="fill">
                   <mat-label>Preference 1</mat-label>
                   <mat-select formControlName="preference1">
-                    <mat-option *ngFor="let choice of firstPreferences" [value]="choice">{{choice}}</mat-option>
+                    <mat-option *ngFor="let choice of firstPreferences" [value]="choice">{{ choice }}</mat-option>
                   </mat-select>
                 </mat-form-field>
               </div>
@@ -181,7 +181,7 @@
                 <mat-form-field appearance="fill">
                   <mat-label>Preference 2</mat-label>
                   <mat-select formControlName="preference2">
-                    <mat-option *ngFor="let choice of secondPreferences" [value]="choice">{{choice}}</mat-option>
+                    <mat-option *ngFor="let choice of secondPreferences" [value]="choice">{{ choice }}</mat-option>
                   </mat-select>
                 </mat-form-field>
               </div>
@@ -189,7 +189,7 @@
                 <mat-form-field appearance="fill">
                   <mat-label>Preference 3</mat-label>
                   <mat-select formControlName="preference3">
-                    <mat-option *ngFor="let choice of thirdPreferences" [value]="choice">{{choice}}</mat-option>
+                    <mat-option *ngFor="let choice of thirdPreferences" [value]="choice">{{ choice }}</mat-option>
                   </mat-select>
                 </mat-form-field>
               </div>
@@ -198,9 +198,11 @@
             <hr/>
 
             <div formGroupName="rationale">
-              <mat-card-title>RATIONALE</mat-card-title>
-              <mat-card-title>Context</mat-card-title>
-              <mat-card-subtitle>Describe the general context in which the project fits: outline the problem statement and indicate the relevance. Maximum 1500 characters, spaces included.</mat-card-subtitle>
+              <div class="bolderText">RATIONALE</div>
+              <div class="boldText">Context</div>
+              <div class="sectionInformation">Describe the general context in which the project fits: outline the problem statement and indicate
+                the relevance. Maximum 1500 characters, spaces included.
+              </div>
 
               <mat-form-field appearance="fill">
                 <mat-label>Click to add text</mat-label>
@@ -212,8 +214,9 @@
               </textarea>
               </mat-form-field>
               <br>
-              <mat-card-title>Objective(s)</mat-card-title>
-              <mat-card-subtitle>Briefly state the overall objective(s) of your project. Maximum 500 characters, spaces included.</mat-card-subtitle>
+              <div class="boldText">Objective(s)</div>
+              <div class="sectionInformation">Briefly state the overall objective(s) of your project. Maximum 500 characters, spaces included.
+              </div>
               <mat-form-field appearance="fill">
                 <mat-label>Click to add text</mat-label>
                 <textarea matInput
@@ -224,8 +227,11 @@
               </textarea>
               </mat-form-field>
               <br>
-              <mat-card-title>Impact</mat-card-title>
-              <mat-card-subtitle>Assess the expected impact of your project on sustainable pig production: describe the potential interest for the pig industry and the compliance with the European Green Deal. Maximum 1000 characters, spaces included.</mat-card-subtitle>
+              <div class="boldText">Impact</div>
+              <div class="sectionInformation">Assess the expected impact of your project on sustainable pig production: describe the potential
+                interest for the pig industry and the compliance with the European Green Deal. Maximum 1000 characters,
+                spaces included.
+              </div>
               <mat-form-field appearance="fill">
                 <mat-label>Click to add text</mat-label>
                 <textarea matInput
@@ -241,10 +247,11 @@
             <hr/>
 
             <div formGroupName="scientificQuality">
-              <mat-card-title>SCIENTIFIC QUALITY</mat-card-title>
-
-              <mat-card-title>State of the art</mat-card-title>
-              <mat-card-subtitle>Present the state of the art: describe the current knowledge and indicate the gaps. Maximum 1500 characters, spaces included.</mat-card-subtitle>
+              <div class="bolderText">SCIENTIFIC QUALITY</div>
+              <div class="boldText">State of the art</div>
+              <div class="sectionInformation">Present the state of the art: describe the current knowledge and indicate the gaps. Maximum 1500
+                characters, spaces included.
+              </div>
 
               <mat-form-field appearance="fill">
                 <mat-label>Click to add text</mat-label>
@@ -256,8 +263,10 @@
               </textarea>
               </mat-form-field>
               <br>
-              <mat-card-title>Scientific question and hypothesis</mat-card-title>
-              <mat-card-subtitle>Define a clear scientific question to which the project should provide an answer; formulate the appropriate hypothesis and describe the degree of innovation. Maximum 1500 characters, spaces included.</mat-card-subtitle>
+              <div class="boldText">Scientific question and hypothesis</div>
+              <div class="sectionInformation">Define a clear scientific question to which the project should provide an answer; formulate the
+                appropriate hypothesis and describe the degree of innovation. Maximum 1500 characters, spaces included.
+              </div>
               <mat-form-field appearance="fill">
                 <mat-label>Click to add text</mat-label>
                 <textarea matInput
@@ -268,8 +277,11 @@
               </textarea>
               </mat-form-field>
               <br>
-              <mat-card-title>Approach</mat-card-title>
-              <mat-card-subtitle>Briefly explain the approach to provide an answer to your scientific question: explain why the installation provided by PIGWEB offers added value and give an indication of the intended experimental design. Maximum 1000 characters, spaces included.</mat-card-subtitle>
+              <div class="boldText">Approach</div>
+              <div class="sectionInformation">Briefly explain the approach to provide an answer to your scientific question: explain why the
+                installation provided by PIGWEB offers added value and give an indication of the intended experimental
+                design. Maximum 1000 characters, spaces included.
+              </div>
               <mat-form-field appearance="fill">
                 <mat-label>Click to add text</mat-label>
                 <textarea matInput
@@ -286,9 +298,10 @@
             <hr/>
 
             <div formGroupName="valorizationStrategy">
-              <mat-card-title>VALORIZATION STRATEGY</mat-card-title>
-              <mat-card-subtitle>Describe the intended valorization strategy: explain what the data will be used for (e.g. open data, scientific publication, patent or registration procedure). Maximum 1000 characters, spaces included.</mat-card-subtitle>
-
+              <div class="bolderText">VALORIZATION STRATEGY</div>
+              <div class="sectionInformation">Describe the intended valorization strategy: explain what the data will be used for (e.g. open data,
+                scientific publication, patent or registration procedure). Maximum 1000 characters, spaces included.
+              </div>
               <mat-form-field appearance="fill">
                 <mat-label>Click to add text</mat-label>
                 <textarea matInput
@@ -299,45 +312,16 @@
               </textarea>
               </mat-form-field>
             </div>
-
-
-
-
-
             <br>
-
-
-
           </div>
+        </div>
+      </div>
 
 
-
-
-        </mat-card-content>
-      </mat-card>
-
-
-      <button mat-flat-button color="primary" type="submit">Submit Form</button>
-    </form>
-
-
-    <form [formGroup]="newForm" (ngSubmit)="onSubmit()">
-      <!--      <mat-form-field appearance="fill">-->
-      <!--        <mat-label>First name</mat-label>-->
-      <!--        <input matInput formControlName="firstname">-->
-      <!--      </mat-form-field>-->
-      <br>
-      <!--      <mat-form-field appearance="fill">-->
-      <!--        <mat-label>Last name</mat-label>-->
-      <!--        <input matInput formControlName="lastname">-->
-      <!--      </mat-form-field>-->
-      <br>
-      <!--      <mat-form-field appearance="fill">-->
-      <!--        <mat-label>Phone</mat-label>-->
-      <!--        <input matInput formControlName="phone">-->
-      <!--      </mat-form-field>-->
-      <br>
-      <!--      <button mat-flat-button color="primary" type="submit">LOG IN</button>-->
+      <div class="flex-container formButtons">
+        <div class="flex-child"><button mat-flat-button color="primary" type="submit">Submit Form</button></div>
+        <div class="flex-child"><button mat-flat-button color="primary" routerLink="/user-profile/1">Cancel</button></div>
+      </div>
     </form>
   </div>
 </div>
