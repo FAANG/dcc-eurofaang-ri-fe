@@ -129,3 +129,17 @@ marginBottom {
 hr {
   margin-bottom: 15px;
 }
+
+.participantForm {
+  padding: 30px 10px 10px 10px;
+  margin-bottom: 20px;
+}
+
+.removeButton {
+  margin-bottom: 10px;
+}
+
+hr.participant {
+  border-top: 1px dashed dimgray;
+  margin-bottom: 20px;
+}

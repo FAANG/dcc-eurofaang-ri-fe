@@ -16,10 +16,13 @@ import {NgForOf, NgIf} from "@angular/common";
 import {Router, RouterLink} from "@angular/router";
 import {MatFormField, MatLabel} from "@angular/material/form-field";
 import {MatInput, MatInputModule} from "@angular/material/input";
-import {AuthService} from "../auth.service";
 import {MatRadioButton, MatRadioGroup} from "@angular/material/radio";
 import {MatOption, MatSelect} from "@angular/material/select";
-
+import {CommonModule} from '@angular/common';
+import {MatIcon} from "@angular/material/icon";
+import {ParticipantFormComponent} from "./participant-form/participant-form.component";
+import {ApiService} from '../services/api.service';
+import {researchInstallations} from './constants';
 
 @Component({
   selector: 'app-tna',
@@ -55,22 +58,25 @@ import {MatOption, MatSelect} from "@angular/material/select";
     MatSelect,
     MatOption,
     NgForOf,
+    CommonModule,
+    MatIcon,
+    ParticipantFormComponent
   ],
-
-
+  providers: [ApiService],
   templateUrl: './tna.component.html',
   styleUrl: './tna.component.css'
 })
 export class TnaComponent implements OnInit {
-  newForm: FormGroup;
-  firstPreferences: string[] = ['preference 1', 'preference 2', 'preference 3'];
-  secondPreferences: string[] = ['preference 1', 'preference 2', 'preference 3'];
-  thirdPreferences: string[] = ['preference 1', 'preference 2', 'preference 3'];
+  tnaForm: FormGroup;
+  firstPreferences: string[] = researchInstallations;
+  secondPreferences: string[] = researchInstallations;
+  thirdPreferences: string[] = researchInstallations;
+  countriesList: string[] = [];
 
   constructor(private formBuilder: FormBuilder,
-              private authService: AuthService,
-              private router: Router) {
-    this.newForm = this.formBuilder.group({
+              private router: Router,
+              private apiService: ApiService,) {
+    this.tnaForm = this.formBuilder.group({
       firstname: [''],
       lastname: [''],
       phone: ['', Validators.pattern("^[0-9]*$")],
@@ -80,12 +86,14 @@ export class TnaComponent implements OnInit {
         organisationAddress: [''],
         organisationCountry: [''],
       }),
+      participants: this.formBuilder.group({
+        participantFields: this.formBuilder.array([this.createParticipantFormGroup()])
+      }),
       projectInformation: this.formBuilder.group({
         applicationConnection: [''],
         associatedPrincipalInvestigator: [''],
         associatedProjectTitle: [''],
         projectTitle: [''],
-        // preferredResearchInstallation: [''],
 
         preferredResearchInstallation: this.formBuilder.group({
           preference1: [''],
@@ -107,21 +115,77 @@ export class TnaComponent implements OnInit {
           strategy: [''],
         }),
       }),
-
-
     });
   }
 
   ngOnInit() {
-
+    this.getCountries();
   }
 
   onSubmit(): void {
-    if (this.newForm.invalid) {
-      console.log(this.newForm.errors);
+    if (this.tnaForm.invalid) {
+      console.log(this.tnaForm.errors);
     } else {
-      // @ts-ignore
-      this.newForm(this.newForm.value);
+      console.log(this.tnaForm)
     }
   }
+
+  public addFilterFormGroup() {
+    const participants = this.tnaForm.get('participants.participantFields') as FormArray;
+    participants.push(this.createParticipantFormGroup());
+  }
+
+  public removeFilter(i: number) {
+    const participants = this.tnaForm.get('participants.participantFields') as FormArray;
+    if (participants.length > 1) {
+      participants.removeAt(i);
+    } else {
+      participants.reset();
+    }
+  }
+
+  getFormValues() {
+    if (this.tnaForm.valid) {
+      return this.tnaForm.value;
+    }
+    return null;
+  }
+
+  private createParticipantFormGroup(): FormGroup {
+    return new FormGroup({
+      firstname: new FormControl(''),
+      lastname: new FormControl(''),
+      phone: new FormControl('', [Validators.pattern("^[0-9]*$")]),
+      email: new FormControl('', [Validators.email]),
+      organisation: new FormGroup({
+        organisationName: new FormControl(''),
+        organisationAddress: new FormControl(''),
+        organisationCountry: new FormControl(''),
+      }),
+
+    });
+  }
+
+  getFormControls() {
+    return (this.tnaForm.get('participants.participantFields') as FormArray).controls;
+  }
+
+  getCountries() {
+    console.log('aaa')
+    this.apiService.getCountries().subscribe(
+      {
+        next: (data) => {
+          this.countriesList = data['properties']['geographic_location']['properties']['value']['enum']
+            .filter((country: string) => country !== 'restricted access');
+        },
+        error: (err: any) => {
+          console.log(err.message);
+        },
+        complete: () => {
+        }
+      }
+    );
+  }
+
+
 }
