@@ -20,7 +20,6 @@ import {MatRadioButton, MatRadioGroup} from "@angular/material/radio";
 import {MatOption, MatSelect} from "@angular/material/select";
 import {CommonModule} from '@angular/common';
 import {MatIcon} from "@angular/material/icon";
-import {ParticipantFormComponent} from "./participant-form/participant-form.component";
 import {ApiService} from '../services/api.service';
 import {researchInstallations} from './constants';
 
@@ -59,8 +58,7 @@ import {researchInstallations} from './constants';
     MatOption,
     NgForOf,
     CommonModule,
-    MatIcon,
-    ParticipantFormComponent
+    MatIcon
   ],
   providers: [ApiService],
   templateUrl: './tna.component.html',
@@ -171,7 +169,6 @@ export class TnaComponent implements OnInit {
   }
 
   getCountries() {
-    console.log('aaa')
     this.apiService.getCountries().subscribe(
       {
         next: (data) => {
