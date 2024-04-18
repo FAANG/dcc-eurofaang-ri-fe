@@ -128,7 +128,7 @@
                   <br>
                 </div>
                 <div class="removeButton">
-                  <button mat-flat-button color="primary" (click)="removeFilter(i)" matTooltip="Remove" color="warn">
+                  <button mat-flat-button (click)="removeFilter(i)" color="warn">
                     Remove participant
                   </button>
                 </div>
@@ -136,7 +136,7 @@
               <hr class="participant"/>
             </div>
             <div class="icon-style">
-              <button mat-flat-button color="primary" (click)="addFilterFormGroup(); getFormValues()" matTooltip="Add">
+              <button mat-flat-button color="primary" (click)="addFilterFormGroup(); getFormValues()">
                 Add new participant
               </button>
             </div>

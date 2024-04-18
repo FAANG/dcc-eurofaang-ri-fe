@@ -40,7 +40,7 @@ mat-card-subtitle {
   background-color: #DC143C;
   color: white;
   text-align: center;
-  padding: 10px 0px;
+  padding: 10px 0;
   margin-bottom: 20px;
 }
 
@@ -80,7 +80,6 @@ mat-form-field {
 .bolderText{
   font-weight: bold;
   font-size: 18px;
-  margin: 20px 0px;
   width: 90%;
   height: auto;
   margin: 10px auto;
