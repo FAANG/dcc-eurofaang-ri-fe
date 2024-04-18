@@ -142,4 +142,5 @@ hr {
 hr.participant {
   border-top: 1px dashed dimgray;
   margin-bottom: 20px;
+  opacity: 0.5;
 }
