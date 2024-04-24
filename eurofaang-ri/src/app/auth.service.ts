@@ -11,12 +11,15 @@ export class AuthService {
   constructor(private http: HttpClient) { }
 
   logIn(username: string, password: string): Observable<LoggedInUser> {
+    console.log(username, password)
     return this.http.post(
       `${URL}/api-user-login/`, {username, password}
     ) as Observable<LoggedInUser>;
   }
 
   setLoggedInUser(userData: LoggedInUser): void {
+    console.log("userData: ", userData)
+    console.log("localStorage.getItem('userData')", localStorage.getItem('userData'))
     if (localStorage.getItem('userData') !== JSON.stringify(userData)) {
       localStorage.setItem('userData', JSON.stringify(userData));
     }

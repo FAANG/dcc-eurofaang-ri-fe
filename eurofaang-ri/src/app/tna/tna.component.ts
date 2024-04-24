@@ -22,6 +22,7 @@ import {CommonModule} from '@angular/common';
 import {MatIcon} from "@angular/material/icon";
 import {ApiService} from '../services/api.service';
 import {researchInstallations} from './constants';
+import {PeriodicElement} from "../user-profile/user-profile.component";
 
 @Component({
   selector: 'app-tna',
@@ -70,26 +71,28 @@ export class TnaComponent implements OnInit {
   secondPreferences: string[] = researchInstallations;
   thirdPreferences: string[] = researchInstallations;
   countriesList: string[] = [];
+  tnaProjectsList: string[] = [];
 
   constructor(private formBuilder: FormBuilder,
               private router: Router,
               private apiService: ApiService,) {
     this.tnaForm = this.formBuilder.group({
-      firstname: [''],
-      lastname: [''],
-      phone: ['', Validators.pattern("^[0-9]*$")],
-      email: ['', Validators.email],
-      organisation: this.formBuilder.group({
-        organisationName: [''],
-        organisationAddress: [''],
-        organisationCountry: [''],
+      principalInvestigator: this.formBuilder.group({
+        firstname: [''],
+        lastname: [''],
+        phone: ['', Validators.pattern("^[0-9]*$")],
+        email: ['', Validators.email],
+        organisation: this.formBuilder.group({
+          organisationName: [''],
+          organisationAddress: [''],
+          organisationCountry: [''],
+        }),
       }),
       participants: this.formBuilder.group({
         participantFields: this.formBuilder.array([this.createParticipantFormGroup()])
       }),
       projectInformation: this.formBuilder.group({
         applicationConnection: [''],
-        associatedPrincipalInvestigator: [''],
         associatedProjectTitle: [''],
         projectTitle: [''],
 
@@ -118,13 +121,25 @@ export class TnaComponent implements OnInit {
 
   ngOnInit() {
     this.getCountries();
+    this.getTnaProjects();
+    console.log("localStorage.getItem('userData')", localStorage.getItem('userData'))
   }
 
   onSubmit(): void {
     if (this.tnaForm.invalid) {
       console.log(this.tnaForm.errors);
     } else {
-      console.log(this.tnaForm)
+      console.log(this.tnaForm.value)
+
+      this.apiService.createTnaProject(this.tnaForm.value).subscribe(
+        data => {
+          console.log(data)
+        },
+        error => {
+          console.log("Submission Failed!");
+        }
+      );
+
     }
   }
 
@@ -183,6 +198,36 @@ export class TnaComponent implements OnInit {
       }
     );
   }
+
+
+
+  getTnaProjects() {
+    this.apiService.getTnaProjects().subscribe(
+      {
+        next: (data) => {
+          this.tnaProjectsList = data['data'].map((entry: { [x: string]: any; }) => ({
+            id: Number(entry['id']),
+            title: entry['project_title']
+          }));
+        },
+        error: (err: any) => {
+          console.log(err.message);
+        },
+        complete: () => {
+        }
+      }
+    );
+  }
+
+  getProjectId(project: any) {
+    return project['id'] ? project['id'] : 0;
+  }
+
+  getProjectTitle(project: any) {
+    return project['title'] ? project['title'] : '**missing tile**';
+  }
+
+
 
 
 }
