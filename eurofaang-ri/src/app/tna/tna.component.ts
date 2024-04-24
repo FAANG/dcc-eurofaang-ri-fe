@@ -22,7 +22,7 @@ import {CommonModule} from '@angular/common';
 import {MatIcon} from "@angular/material/icon";
 import {ApiService} from '../services/api.service';
 import {researchInstallations} from './constants';
-import {PeriodicElement} from "../user-profile/user-profile.component";
+import {MatSnackBar} from "@angular/material/snack-bar";
 
 @Component({
   selector: 'app-tna',
@@ -72,21 +72,27 @@ export class TnaComponent implements OnInit {
   thirdPreferences: string[] = researchInstallations;
   countriesList: string[] = [];
   tnaProjectsList: string[] = [];
+  userID : string = '';
+  userFullName: string = '';
+  snackBarRef: any;
 
   constructor(private formBuilder: FormBuilder,
               private router: Router,
-              private apiService: ApiService,) {
+              private apiService: ApiService,
+              public snackbar: MatSnackBar,) {
+
+    // get loggedIn user details
+    const userData: string | null = localStorage.getItem('userData');
+    if (userData) {
+      console.log(userData)
+      const userDataObj = JSON.parse(userData);
+      this.userID =  userDataObj['id'];
+      this.userFullName = userDataObj['first_name'] + " " + userDataObj['last_name'];
+    }
+
     this.tnaForm = this.formBuilder.group({
       principalInvestigator: this.formBuilder.group({
-        firstname: [''],
-        lastname: [''],
-        phone: ['', Validators.pattern("^[0-9]*$")],
-        email: ['', Validators.email],
-        organisation: this.formBuilder.group({
-          organisationName: [''],
-          organisationAddress: [''],
-          organisationCountry: [''],
-        }),
+        principalInvestigatorId: [this.userID],
       }),
       participants: this.formBuilder.group({
         participantFields: this.formBuilder.array([this.createParticipantFormGroup()])
@@ -122,7 +128,6 @@ export class TnaComponent implements OnInit {
   ngOnInit() {
     this.getCountries();
     this.getTnaProjects();
-    console.log("localStorage.getItem('userData')", localStorage.getItem('userData'))
   }
 
   onSubmit(): void {
@@ -134,9 +139,12 @@ export class TnaComponent implements OnInit {
       this.apiService.createTnaProject(this.tnaForm.value).subscribe(
         data => {
           console.log(data)
+          this.openSnackbar('TNA project successfully created', 'Dismiss');
+          this.router.navigate(['/user-profile/1']);
         },
         error => {
           console.log("Submission Failed!");
+          this.openSnackbar('Submission Failed! Contact FAANG helpdesk', 'Dismiss');
         }
       );
 
@@ -150,7 +158,7 @@ export class TnaComponent implements OnInit {
 
   public removeFilter(i: number) {
     const participants = this.tnaForm.get('participants.participantFields') as FormArray;
-    if (participants.length > 1) {
+    if (participants.length > 0) {
       participants.removeAt(i);
     } else {
       participants.reset();
@@ -166,8 +174,8 @@ export class TnaComponent implements OnInit {
 
   private createParticipantFormGroup(): FormGroup {
     return new FormGroup({
-      firstname: new FormControl(''),
-      lastname: new FormControl(''),
+      firstname: new FormControl('', Validators.required),
+      lastname: new FormControl('', Validators.required),
       phone: new FormControl('', [Validators.pattern("^[0-9]*$")]),
       email: new FormControl('', [Validators.email]),
       organisation: new FormGroup({
@@ -199,8 +207,6 @@ export class TnaComponent implements OnInit {
     );
   }
 
-
-
   getTnaProjects() {
     this.apiService.getTnaProjects().subscribe(
       {
@@ -225,6 +231,18 @@ export class TnaComponent implements OnInit {
 
   getProjectTitle(project: any) {
     return project['title'] ? project['title'] : '**missing tile**';
+  }
+
+  openSnackbar(message: string, action: string) {
+    this.snackBarRef = this.snackbar.open(message, action, {
+      horizontalPosition: 'center',
+      verticalPosition: 'top',
+      duration: 2000
+    });
+
+    this.snackBarRef.onAction().subscribe(() => {
+      this.router.navigate(['/user-profile/1']);
+    });
   }
 
 

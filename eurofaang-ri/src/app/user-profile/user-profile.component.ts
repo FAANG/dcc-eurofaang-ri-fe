@@ -9,22 +9,12 @@ import {MatListModule} from "@angular/material/list";
 import {MatTableDataSource, MatTableModule} from "@angular/material/table";
 import {ApiService} from '../services/api.service';
 
-export interface PeriodicElement {
+export interface TnaDisplayInterface {
   title: string;
   id: number;
   pi: string;
   connected: string;
 }
-
-// const ELEMENT_DATA: PeriodicElement[] = [
-//   {id: 1, title: 'TNA test application 1', pi: 'Principal Investigator 1', connected: 'No'},
-//   {id: 2, title: 'TNA test application 2', pi: 'Principal Investigator 2', connected: 'Yes'},
-// ];
-
-const ELEMENT_DATA: PeriodicElement[] = [
-  {id: 1, title: 'TNA test application 1', pi: 'Principal Investigator 1', connected: 'No'},
-  {id: 2, title: 'TNA test application 2', pi: 'Principal Investigator 2', connected: 'Yes'},
-];
 
 @Component({
   selector: 'app-user-profile',
@@ -37,8 +27,7 @@ const ELEMENT_DATA: PeriodicElement[] = [
 export class UserProfileComponent implements OnInit, AfterViewInit{
   userProfile: UserProfile|null = null;
   displayedColumns: string[] = ['id', 'title', 'pi', 'connected'];
-  projectsList: PeriodicElement[] = [];
-  // dataSource = ELEMENT_DATA;
+  projectsList: TnaDisplayInterface[] = [];
   dataSource: MatTableDataSource<any> =  new MatTableDataSource<any>([]);
 
 
@@ -73,9 +62,9 @@ export class UserProfileComponent implements OnInit, AfterViewInit{
           this.projectsList = data['data'].map((entry: { [x: string]: any; }) => ({
             id: entry['id'],
             title: entry['project_title'],
-            pi: entry['principal_investigator'],
+            pi: entry['principal_investigator']['first_name'] + " " + entry['principal_investigator']['last_name'],
             connected: entry['associated_application']
-          }as PeriodicElement));
+          }as TnaDisplayInterface));
           this.dataSource.data = this.projectsList;
         },
         error: (err: any) => {

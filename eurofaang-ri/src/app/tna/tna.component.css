@@ -4,15 +4,12 @@
   margin-right: 15px;
   width: 70%;
   max-width: 900px;
-  background-color: #fbfcfd;
 }
 
 .main-container {
   display: flex;
   justify-content: center;
-  /*flex-direction: column;*/
 }
-
 
 h2 {
   text-align: center;
@@ -85,8 +82,6 @@ mat-form-field {
   margin: 10px auto;
   position: relative;
   text-align: left;
-
-
 }
 
 .sectionInformation {

@@ -4,67 +4,13 @@
       <h1 class="form-heading">TNA User Information</h1>
       <hr/>
       <div class="fieldsPosition">
-        <div class="fieldsPosition">
-          <div class="boldText">Principal Investigator</div>
-          <div class="sectionInformation">Please provide the following information for the principal investigator</div>
-          <div formGroupName="principalInvestigator">
-            <mat-form-field appearance="fill">
-              <mat-label>First name</mat-label>
-              <input matInput formControlName="firstname">
-            </mat-form-field>
-            <br>
-            <mat-form-field appearance="fill">
-              <mat-label>Last name</mat-label>
-              <input matInput formControlName="lastname">
-            </mat-form-field>
-            <br>
-            <mat-form-field appearance="fill">
-              <mat-label>Phone</mat-label>
-              <input matInput formControlName="phone">
-            </mat-form-field>
-            <span
-              *ngIf="!tnaForm.get('phone')?.valid && tnaForm.get('phone')?.touched"
-              class="help-block">Please enter a valid phone number!
-          </span>
-            <br>
-            <mat-form-field appearance="fill">
-              <mat-label>Email</mat-label>
-              <input matInput formControlName="email">
-            </mat-form-field>
-            <span
-              *ngIf="!tnaForm.get('email')?.valid && tnaForm.get('email')?.touched"
-              class="help-block">Please enter a valid email!
-          </span>
-            <br>
-
-            <div formGroupName="organisation">
-              <mat-form-field appearance="fill">
-                <mat-label>Organisation name</mat-label>
-                <input matInput formControlName="organisationName">
-              </mat-form-field>
-              <br>
-              <mat-form-field appearance="fill">
-                <mat-label>Organisation address</mat-label>
-                <textarea matInput
-                          formControlName="organisationAddress"
-                          cdkTextareaAutosize
-                          #autosize="cdkTextareaAutosize"
-                          rows="3">
-
-              </textarea>
-              </mat-form-field>
-              <br>
-              <mat-form-field appearance="fill">
-                <mat-label>Organisation country</mat-label>
-                <mat-select formControlName="organisationCountry">
-                  <mat-option *ngFor="let country of countriesList" [value]="country">
-                    {{ country }}
-                  </mat-option>
-                </mat-select>
-              </mat-form-field>
-              <br>
-            </div>
-          </div>
+        <div class="boldText">Principal Investigator</div>
+        <div class="sectionInformation">Please provide the following information for the principal investigator</div>
+        <div formGroupName="principalInvestigator">
+          <mat-form-field appearance="fill">
+            <input matInput formControlName="principalInvestigatorId">
+          </mat-form-field>
+          <br>
         </div>
       </div>
 
@@ -74,7 +20,6 @@
           information
           requested for the principal investigator
         </div>
-
         <div formGroupName="participants">
           <div formArrayName="participantFields">
             <div *ngFor="let filterField of getFormControls(); let i = index"
@@ -144,7 +89,6 @@
             </div>
           </div>
         </div>
-
       </div>
 
       <h1 class="form-heading">TNA Project Information</h1>
@@ -168,11 +112,11 @@
               <div>
                 <mat-form-field appearance="fill">
                   <mat-label>Associated application</mat-label>
-                <mat-select formControlName="associatedProjectTitle">
-                  <mat-option *ngFor="let project of tnaProjectsList" [value]="getProjectId(project)">
-                    {{ getProjectTitle(project) }}
-                  </mat-option>
-                </mat-select>
+                  <mat-select formControlName="associatedProjectTitle">
+                    <mat-option *ngFor="let project of tnaProjectsList" [value]="getProjectId(project)">
+                      {{ getProjectTitle(project) }}
+                    </mat-option>
+                  </mat-select>
                 </mat-form-field>
                 <br>
               </div>
@@ -218,7 +162,6 @@
                 </mat-form-field>
               </div>
             </div>
-
             <hr/>
 
             <div formGroupName="rationale">
@@ -270,7 +213,6 @@
               </mat-form-field>
               <br>
             </div>
-
             <hr/>
 
             <div formGroupName="scientificQuality">
@@ -324,6 +266,7 @@
               <br>
             </div>
             <hr/>
+
             <div formGroupName="valorizationStrategy">
               <div class="bolderText">VALORIZATION STRATEGY</div>
               <div class="sectionInformation">Describe the intended valorization strategy: explain what the data will be
