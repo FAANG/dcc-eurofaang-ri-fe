@@ -14,6 +14,10 @@
         </div>
       </div>
 
+      <div class="fieldsPosition piClass" *ngIf="userFullName.trim().length > 0">
+        <div class="boldText">Principal Investigator: {{userFullName}}</div>
+      </div>
+
       <div class="fieldsPosition">
         <div class="boldText">Additional participants</div>
         <div class="sectionInformation">If applicable, please provide for each additional participant the same
