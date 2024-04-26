@@ -54,6 +54,18 @@ export class ApiService {
     );
   }
 
+  getTnaProjectDetails(tnaId: string) {
+    const url = `${URL}/tna/${tnaId}`;
+    const res: { [key: string]: any } = {}
+    return this.http.get(url, this.httpOptions).pipe(
+      map((data: any) => {
+        res['data'] = data;
+        return res;
+      }),
+      catchError(this.handleError),
+    );
+  }
+
   getUserDetails(userId: number) {
     const url = `${URL}/users/${userId}`;
     const res: { [key: string]: any } = {}
@@ -69,6 +81,17 @@ export class ApiService {
   createTnaProject(body: any) {
     const url = URL + '/tna/list/';
     return this.http.post(url, body, this.httpOptions).pipe(
+      map((data: any) => {
+        return data;
+      }),
+      catchError(this.handleError),
+    );
+  }
+
+  editTnaProject(body: any, tnaId: any) {
+    console.log(body)
+    const url = URL + '/tna/' + tnaId + '/';
+    return this.http.put(url, body, this.httpOptions).pipe(
       map((data: any) => {
         return data;
       }),

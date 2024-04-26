@@ -9,4 +9,5 @@ export const routes: Routes = [
   { path: 'user-profile/:id', component: UserProfileComponent, canActivate: [authGuard] },
   { path: '', redirectTo: '/login', pathMatch: 'full' },
   {path: 'tna/new', component: TnaComponent},
+  {path: 'tna/edit/:id', component: TnaComponent},
 ];

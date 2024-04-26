@@ -1,6 +1,6 @@
 <div class="main-container">
   <div class="containerElement">
-    <form [formGroup]="tnaForm" (ngSubmit)="onSubmit()">
+    <form [formGroup]="tnaForm" (ngSubmit)="onSubmit(tnaId)">
       <h1 class="form-heading">TNA User Information</h1>
       <hr/>
       <div class="fieldsPosition" style="display: none">
@@ -87,7 +87,7 @@
               <hr class="participant"/>
             </div>
             <div class="icon-style">
-              <button mat-flat-button color="primary" (click)="addFilterFormGroup(); getFormValues()">
+              <button mat-flat-button color="primary" (click)="addFilterFormGroup()">
                 Add new participant
               </button>
             </div>
