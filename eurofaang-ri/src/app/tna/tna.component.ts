@@ -228,7 +228,7 @@ export class TnaComponent implements OnInit {
           data => {
             console.log(data)
             this.openSnackbar('TNA project successfully created', 'Dismiss');
-            this.router.navigate(['/user-profile/1']);
+            this.router.navigate([`/user-profile/${this.userID}`]);
           },
           error => {
             console.log("Submission Failed!");
@@ -240,7 +240,7 @@ export class TnaComponent implements OnInit {
           data => {
             console.log(data)
             this.openSnackbar('TNA project successfully created', 'Dismiss');
-            this.router.navigate(['/user-profile/1']);
+            this.router.navigate([`/user-profile/${this.userID}`]);
           },
           error => {
             console.log("Submission Failed!");
