@@ -13,7 +13,7 @@ import {
   MatRow, MatRowDef, MatTable
 } from "@angular/material/table";
 import {NgForOf, NgIf} from "@angular/common";
-import {Router, RouterLink} from "@angular/router";
+import {ActivatedRoute, Router, RouterLink, Params} from "@angular/router";
 import {MatFormField, MatLabel} from "@angular/material/form-field";
 import {MatInput, MatInputModule} from "@angular/material/input";
 import {MatRadioButton, MatRadioGroup} from "@angular/material/radio";
@@ -72,12 +72,15 @@ export class TnaComponent implements OnInit {
   thirdPreferences: string[] = researchInstallations;
   countriesList: string[] = [];
   tnaProjectsList: string[] = [];
-  userID : string = '';
+  userID: string = '';
   userFullName: string = '';
   snackBarRef: any;
+  tnaId: string = '';
+  tnaProjectDetails: any;
 
   constructor(private formBuilder: FormBuilder,
               private router: Router,
+              private route: ActivatedRoute,
               private apiService: ApiService,
               public snackbar: MatSnackBar,) {
 
@@ -86,7 +89,7 @@ export class TnaComponent implements OnInit {
     if (userData) {
       console.log(userData)
       const userDataObj = JSON.parse(userData);
-      this.userID =  userDataObj['id'];
+      this.userID = userDataObj['id'];
       this.userFullName = userDataObj['first_name'] + " " + userDataObj['last_name'];
     }
 
@@ -95,7 +98,7 @@ export class TnaComponent implements OnInit {
         principalInvestigatorId: [this.userID],
       }),
       participants: this.formBuilder.group({
-        participantFields: this.formBuilder.array([this.createParticipantFormGroup()])
+        participantFields: this.formBuilder.array(this.router.url.startsWith("/tna/edit") ? [] : [this.createParticipantFormGroup()])
       }),
       projectInformation: this.formBuilder.group({
         applicationConnection: [''],
@@ -126,28 +129,125 @@ export class TnaComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.route.params.subscribe((params: Params) => {
+      this.tnaId = params['id'];
+    });
+
+    if (this.tnaId) {
+      this.apiService.getTnaProjectDetails(this.tnaId).subscribe(
+        {
+          next: (data) => {
+            console.log(data)
+            if (!("data" in data)) {
+              this.router.navigate(['404']);
+            } else {
+              this.tnaProjectDetails = data['data'];
+              // build form object with fetched data
+              const tnaFormObj: object = this.buildFormValueObj(this.tnaProjectDetails);
+              this.tnaForm.setValue(tnaFormObj);
+
+            }
+          },
+          error: (err: any) => {
+            console.log(err.message);
+          },
+          complete: () => {
+          }
+        }
+      );
+    }
     this.getCountries();
     this.getTnaProjects();
   }
 
-  onSubmit(): void {
+  buildFormValueObj(tnaProjectDetails: any) {
+    const participantFields = [];
+    const participantsFormArray = this.tnaForm.get('participants.participantFields') as FormArray;
+    for (let obj of tnaProjectDetails['additional_participants']) {
+      const participantObj = {
+        'id': obj['id'] ? obj['id'] : null,
+        'firstname': obj['first_name'],
+        'lastname': obj['last_name'],
+        'phone': obj['phone_number'],
+        'email': obj['email'],
+        'organisation': {
+          'organisationName': obj['organization_name'],
+          'organisationAddress': obj['organization_address'],
+          'organisationCountry': obj['organization_country'],
+        }
+      }
+      participantFields.push(participantObj);
+      participantsFormArray.push(this.editParticipantFormGroup(participantObj));
+    }
+
+    const formObject: { [key: string]: { [key: string]: any } } = {
+      'principalInvestigator': {'principalInvestigatorId': tnaProjectDetails['principal_investigator']['id']},
+      'participants': {
+        'participantFields': []
+      },
+      'projectInformation': {
+        'applicationConnection': tnaProjectDetails['associated_application'],
+        'associatedProjectTitle': tnaProjectDetails['associated_application_title'],
+        'projectTitle': tnaProjectDetails['project_title'],
+        'preferredResearchInstallation': {
+          'preference1': tnaProjectDetails['research_installation_1'],
+          'preference2': tnaProjectDetails['research_installation_2'],
+          'preference3': tnaProjectDetails['research_installation_3'],
+        },
+        'rationale': {
+          'context': tnaProjectDetails['context'],
+          'objective': tnaProjectDetails['objective'],
+          'impact': tnaProjectDetails['impact'],
+        },
+        'scientificQuality': {
+          'stateArt': tnaProjectDetails['state_art'],
+          'questionHypothesis': tnaProjectDetails['scientific_question_hypothesis'],
+          'approach': tnaProjectDetails['approach'],
+        },
+        'valorizationStrategy': {
+          'strategy': tnaProjectDetails['strategy'],
+        }
+      }
+    }
+    formObject['participants']['participantFields'] = participantFields;
+    console.log(participantFields)
+
+    return formObject;
+
+  }
+
+  onSubmit(tnaId: any): void {
     if (this.tnaForm.invalid) {
       console.log(this.tnaForm.errors);
     } else {
       console.log(this.tnaForm.value)
+      console.log(this.tnaForm.getRawValue())
 
-      this.apiService.createTnaProject(this.tnaForm.value).subscribe(
-        data => {
-          console.log(data)
-          this.openSnackbar('TNA project successfully created', 'Dismiss');
-          this.router.navigate(['/user-profile/1']);
-        },
-        error => {
-          console.log("Submission Failed!");
-          this.openSnackbar('Submission Failed! Contact FAANG helpdesk', 'Dismiss');
-        }
-      );
-
+      if (tnaId){
+        this.apiService.editTnaProject(this.tnaForm.getRawValue(), tnaId).subscribe(
+          data => {
+            console.log(data)
+            this.openSnackbar('TNA project successfully created', 'Dismiss');
+            this.router.navigate(['/user-profile/1']);
+          },
+          error => {
+            console.log("Submission Failed!");
+            this.openSnackbar('Submission Failed! Contact FAANG helpdesk', 'Dismiss');
+          }
+        );
+      } else {
+        this.apiService.createTnaProject(this.tnaForm.getRawValue()).subscribe(
+          data => {
+            console.log(data)
+            this.openSnackbar('TNA project successfully created', 'Dismiss');
+            this.router.navigate(['/user-profile/1']);
+          },
+          error => {
+            console.log("Submission Failed!");
+            this.openSnackbar('Submission Failed! Contact FAANG helpdesk', 'Dismiss');
+          }
+        );
+      }
     }
   }
 
@@ -165,15 +265,9 @@ export class TnaComponent implements OnInit {
     }
   }
 
-  getFormValues() {
-    if (this.tnaForm.valid) {
-      return this.tnaForm.value;
-    }
-    return null;
-  }
-
   private createParticipantFormGroup(): FormGroup {
     return new FormGroup({
+      id: new FormControl({value: null, disabled: true}),
       firstname: new FormControl('', Validators.required),
       lastname: new FormControl('', Validators.required),
       phone: new FormControl('', [Validators.pattern("^[0-9]*$")]),
@@ -183,7 +277,21 @@ export class TnaComponent implements OnInit {
         organisationAddress: new FormControl(''),
         organisationCountry: new FormControl(''),
       }),
+    });
+  }
 
+  private editParticipantFormGroup(participantObj : { [key: string]: any }): FormGroup {
+    return new FormGroup({
+      id: new FormControl({value: participantObj['id'], disabled: true}),
+      firstname: new FormControl({value: participantObj['firstname'], disabled: true}, Validators.required),
+      lastname: new FormControl({value: participantObj['lastname'], disabled: true}, Validators.required),
+      phone: new FormControl({value: participantObj['phone'], disabled: true}, [Validators.pattern("^[0-9]*$")]),
+      email: new FormControl({value: participantObj['email'], disabled: true}, [Validators.email]),
+      organisation: new FormGroup({
+        organisationName: new FormControl({value: participantObj['organisation']['organisationName'], disabled: true}),
+        organisationAddress: new FormControl({value: participantObj['organisation']['organisationAddress'], disabled: true}),
+        organisationCountry: new FormControl({value: participantObj['organisation']['organisationCountry'], disabled: true}),
+      }),
     });
   }
 
@@ -241,11 +349,9 @@ export class TnaComponent implements OnInit {
     });
 
     this.snackBarRef.onAction().subscribe(() => {
-      this.router.navigate(['/user-profile/1']);
+      this.router.navigate([`/user-profile/${this.userID}`]);
     });
   }
-
-
 
 
 }
