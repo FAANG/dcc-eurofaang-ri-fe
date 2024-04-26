@@ -1,39 +1,39 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnInit, AfterViewInit} from '@angular/core';
 import {UserProfile} from "../user-profile";
 import {UserProfileService} from "../user-profile.service";
-import {ActivatedRoute} from "@angular/router";
+import {ActivatedRoute, RouterLink} from "@angular/router";
 import {MatCardModule} from "@angular/material/card";
 import {CommonModule} from "@angular/common";
 import {MatButtonModule} from "@angular/material/button";
 import {MatListModule} from "@angular/material/list";
-import {MatTableModule} from "@angular/material/table";
+import {MatTableDataSource, MatTableModule} from "@angular/material/table";
+import {ApiService} from '../services/api.service';
 
-export interface PeriodicElement {
+export interface TnaDisplayInterface {
   title: string;
-  position: number;
+  id: number;
   pi: string;
   connected: string;
 }
 
-const ELEMENT_DATA: PeriodicElement[] = [
-  {position: 1, title: 'TNA test application 1', pi: 'Principal Investigator 1', connected: 'No'},
-  {position: 2, title: 'TNA test application 2', pi: 'Principal Investigator 2', connected: 'Yes'},
-];
-
 @Component({
   selector: 'app-user-profile',
   standalone: true,
-  imports: [MatCardModule, CommonModule, MatButtonModule, MatListModule, MatTableModule],
+  imports: [MatCardModule, CommonModule, MatButtonModule, MatListModule, MatTableModule, RouterLink],
+  providers: [ApiService],
   templateUrl: './user-profile.component.html',
   styleUrl: './user-profile.component.css'
 })
-export class UserProfileComponent implements OnInit{
+export class UserProfileComponent implements OnInit, AfterViewInit{
   userProfile: UserProfile|null = null;
-  displayedColumns: string[] = ['position', 'title', 'pi', 'connected'];
-  dataSource = ELEMENT_DATA;
+  displayedColumns: string[] = ['id', 'title', 'pi', 'connected'];
+  projectsList: TnaDisplayInterface[] = [];
+  dataSource: MatTableDataSource<any> =  new MatTableDataSource<any>([]);
 
 
-  constructor(private userProfileService: UserProfileService, private activatedRoute: ActivatedRoute) {}
+  constructor(private userProfileService: UserProfileService,
+              private activatedRoute: ActivatedRoute,
+              private apiService: ApiService,) {}
 
 
   ngOnInit(): void {
@@ -47,5 +47,54 @@ export class UserProfileComponent implements OnInit{
         console.log(error);
       }
     });
+
+    this.getTnaProjects();
+  }
+
+  ngAfterViewInit() {
+
+  }
+
+  getTnaProjects() {
+    this.apiService.getTnaProjects().subscribe(
+      {
+        next: (data) => {
+          this.projectsList = data['data'].map((entry: { [x: string]: any; }) => ({
+            id: entry['id'],
+            title: entry['project_title'],
+            pi: entry['principal_investigator']['first_name'] + " " + entry['principal_investigator']['last_name'],
+            connected: entry['associated_application']
+          }as TnaDisplayInterface));
+          this.dataSource.data = this.projectsList;
+        },
+        error: (err: any) => {
+          console.log(err.message);
+        },
+        complete: () => {
+        }
+      }
+    );
+  }
+
+  getUserDetails(userId: number) {
+    this.apiService.getUserDetails(userId).subscribe(
+      {
+        next: (data) => {
+          const name = `${data['data']['first_name']} ${data['data']['last_name']}`
+          console.log(data['data']['first_name'])
+          return name;
+
+        },
+        error: (err: any) => {
+          console.log(err.message);
+        },
+        complete: () => {
+        }
+      }
+    );
   }
 }
+
+
+
+
