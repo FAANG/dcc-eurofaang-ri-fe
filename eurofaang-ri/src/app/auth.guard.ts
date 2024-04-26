@@ -7,7 +7,7 @@ export class PermissionsService {
   constructor(private router: Router) { }
 
   canActivate(): boolean {
-    if (localStorage.getItem("userData")) {
+    if (sessionStorage.getItem("userData")) {
       return true;
     }
     this.router.navigateByUrl('/login');
