@@ -1,6 +1,6 @@
 import {Component, OnInit, AfterViewInit} from '@angular/core';
 import {UserProfile} from "../user-profile";
-import {UserProfileService} from "../user-profile.service";
+import {UserProfileService} from "../services/user-profile.service";
 import {ActivatedRoute, RouterLink} from "@angular/router";
 import {MatCardModule} from "@angular/material/card";
 import {CommonModule} from "@angular/common";
@@ -62,7 +62,7 @@ export class UserProfileComponent implements OnInit, AfterViewInit{
           this.projectsList = data['data'].map((entry: { [x: string]: any; }) => ({
             id: entry['id'],
             title: entry['project_title'],
-            pi: entry['principal_investigator']['first_name'] + " " + entry['principal_investigator']['last_name'],
+            pi: "pi name", //entry['principal_investigator']['first_name'] + " " + entry['principal_investigator']['last_name'],
             connected: entry['associated_application']
           }as TnaDisplayInterface));
           this.dataSource.data = this.projectsList;

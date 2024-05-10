@@ -32,18 +32,8 @@ export class ApiService {
     };
   }
 
-  getCountries() {
-    const url = 'https://raw.githubusercontent.com/FAANG/dcc-metadata/master/json_schema/type/samples/faang_samples_specimen.metadata_rules.json';
-    return this.http.get(url).pipe(
-      map((data: any) => {
-        return data;
-      }),
-      catchError(this.handleError),
-    );
-  }
-
   getTnaProjects() {
-    const url = `${URL}/tna/list/`;
+    const url = `${URL}/api/v1/tna/`;
     const res: { [key: string]: any } = {}
     return this.http.get(url, this.httpOptions).pipe(
       map((data: any) => {
@@ -55,7 +45,7 @@ export class ApiService {
   }
 
   getTnaProjectDetails(tnaId: string) {
-    const url = `${URL}/tna/${tnaId}`;
+    const url = `${URL}/api/v1/tna/${tnaId}/`;
     const res: { [key: string]: any } = {}
     return this.http.get(url, this.httpOptions).pipe(
       map((data: any) => {
@@ -67,7 +57,7 @@ export class ApiService {
   }
 
   getUserDetails(userId: number) {
-    const url = `${URL}/users/${userId}`;
+    const url = `${URL}/api/v1/users/${userId}/`;
     const res: { [key: string]: any } = {}
     return this.http.get(url).pipe(
       map((data: any) => {
@@ -79,7 +69,7 @@ export class ApiService {
   }
 
   createTnaProject(body: any) {
-    const url = URL + '/tna/list/';
+    const url = URL + '/api/v1/tna/';
     return this.http.post(url, body, this.httpOptions).pipe(
       map((data: any) => {
         return data;
@@ -90,7 +80,7 @@ export class ApiService {
 
   editTnaProject(body: any, tnaId: any) {
     console.log(body)
-    const url = URL + '/tna/' + tnaId + '/';
+    const url = `${URL}/api/v1/tna/${tnaId}/`;
     return this.http.put(url, body, this.httpOptions).pipe(
       map((data: any) => {
         return data;

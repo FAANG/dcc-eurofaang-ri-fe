@@ -23,6 +23,7 @@ import {MatIcon} from "@angular/material/icon";
 import {ApiService} from '../services/api.service';
 import {researchInstallations} from './constants';
 import {MatSnackBar} from "@angular/material/snack-bar";
+import { countries } from '../shared/constants';
 
 @Component({
   selector: 'app-tna',
@@ -72,11 +73,13 @@ export class TnaComponent implements OnInit {
   thirdPreferences: string[] = researchInstallations;
   countriesList: string[] = [];
   tnaProjectsList: string[] = [];
-  userID: string = '';
+  userID: number = 0;
   userFullName: string = '';
   snackBarRef: any;
   tnaId: string = '';
+  tnaOwner: string = '';
   tnaProjectDetails: any;
+  enableEdit: boolean = false;
 
   constructor(private formBuilder: FormBuilder,
               private router: Router,
@@ -86,10 +89,11 @@ export class TnaComponent implements OnInit {
 
     // get loggedIn user details
     const userData: string | null = localStorage.getItem('userData');
+
     if (userData) {
       console.log(userData)
       const userDataObj = JSON.parse(userData);
-      this.userID = userDataObj['id'];
+      this.userID = parseInt(userDataObj['id']);
       this.userFullName = userDataObj['first_name'] + " " + userDataObj['last_name'];
     }
 
@@ -145,6 +149,9 @@ export class TnaComponent implements OnInit {
               // build form object with fetched data
               const tnaFormObj: object = this.buildFormValueObj(this.tnaProjectDetails);
               this.tnaForm.setValue(tnaFormObj);
+              if (!this.enableEdit) {
+                this.tnaForm.disable()
+              }
 
             }
           },
@@ -156,11 +163,14 @@ export class TnaComponent implements OnInit {
         }
       );
     }
-    this.getCountries();
+    this.countriesList = countries;
     this.getTnaProjects();
   }
 
   buildFormValueObj(tnaProjectDetails: any) {
+    if (parseInt(tnaProjectDetails['tna_owner']) ===  this.userID){
+      this.enableEdit = true;
+    }
     const participantFields = [];
     const participantsFormArray = this.tnaForm.get('participants.participantFields') as FormArray;
     for (let obj of tnaProjectDetails['additional_participants']) {
@@ -297,22 +307,6 @@ export class TnaComponent implements OnInit {
 
   getFormControls() {
     return (this.tnaForm.get('participants.participantFields') as FormArray).controls;
-  }
-
-  getCountries() {
-    this.apiService.getCountries().subscribe(
-      {
-        next: (data) => {
-          this.countriesList = data['properties']['geographic_location']['properties']['value']['enum']
-            .filter((country: string) => country !== 'restricted access');
-        },
-        error: (err: any) => {
-          console.log(err.message);
-        },
-        complete: () => {
-        }
-      }
-    );
   }
 
   getTnaProjects() {
