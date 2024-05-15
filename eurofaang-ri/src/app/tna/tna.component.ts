@@ -88,7 +88,7 @@ export class TnaComponent implements OnInit {
               public snackbar: MatSnackBar,) {
 
     // get loggedIn user details
-    const userData: string | null = localStorage.getItem('userData');
+    const userData: string | null = sessionStorage.getItem('userData');
 
     if (userData) {
       console.log(userData)

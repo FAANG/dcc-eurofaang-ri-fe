@@ -20,7 +20,7 @@ export class ApiService {
     this.http = new HttpClient(handler);
 
     // set authorisation token
-    const userData: string | null = localStorage.getItem('userData');
+    const userData: string | null = sessionStorage.getItem('userData');
     let token = '';
     if (userData) {
       token = JSON.parse(userData)['token'];
