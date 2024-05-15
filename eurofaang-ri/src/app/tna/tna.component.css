@@ -39,6 +39,7 @@ mat-card-subtitle {
   text-align: center;
   padding: 10px 0;
   margin-bottom: 20px;
+  margin-top: 25px;
 }
 
 mat-form-field {

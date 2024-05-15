@@ -23,7 +23,7 @@ import {MatIcon} from "@angular/material/icon";
 import {ApiService} from '../services/api.service';
 import {researchInstallations} from './constants';
 import {MatSnackBar} from "@angular/material/snack-bar";
-import { countries } from '../shared/constants';
+import {countries} from '../shared/constants';
 
 @Component({
   selector: 'app-tna',
@@ -77,9 +77,8 @@ export class TnaComponent implements OnInit {
   userFullName: string = '';
   snackBarRef: any;
   tnaId: string = '';
-  tnaOwner: string = '';
   tnaProjectDetails: any;
-  enableEdit: boolean = false;
+  enableEdit: boolean = true;
 
   constructor(private formBuilder: FormBuilder,
               private router: Router,
@@ -152,7 +151,6 @@ export class TnaComponent implements OnInit {
               if (!this.enableEdit) {
                 this.tnaForm.disable()
               }
-
             }
           },
           error: (err: any) => {
@@ -168,9 +166,8 @@ export class TnaComponent implements OnInit {
   }
 
   buildFormValueObj(tnaProjectDetails: any) {
-    if (parseInt(tnaProjectDetails['tna_owner']) ===  this.userID){
-      this.enableEdit = true;
-    }
+    this.enableEdit = parseInt(tnaProjectDetails['tna_owner']) === this.userID
+      && tnaProjectDetails['record_status'] != 'submitted';
     const participantFields = [];
     const participantsFormArray = this.tnaForm.get('participants.participantFields') as FormArray;
     for (let obj of tnaProjectDetails['additional_participants']) {
@@ -220,43 +217,95 @@ export class TnaComponent implements OnInit {
       }
     }
     formObject['participants']['participantFields'] = participantFields;
-    console.log(participantFields)
-
     return formObject;
-
   }
 
-  onSubmit(tnaId: any): void {
+
+  enableValidation(tnaForm: any) {
+    function setFieldValidation(formControl: string) {
+      tnaForm.get(formControl).setValidators([Validators.required]);
+      tnaForm.get(formControl).updateValueAndValidity();
+    }
+    function setFormArrayValidation(formControl: string, fieldName: string, index: number) {
+      tnaForm.get(formControl).at(index).controls[fieldName].setValidators([Validators.required])
+      tnaForm.get(formControl).at(index).controls[fieldName].updateValueAndValidity();
+    }
+    function setFormArrayOrganisationValidation(fieldName: string, index: number) {
+      tnaForm.get('participants.participantFields').at(index).controls['organisation'].controls[fieldName].setValidators([Validators.required])
+      tnaForm.get('participants.participantFields').at(index).controls['organisation'].controls[fieldName].updateValueAndValidity();
+    }
+
+    setFieldValidation('projectInformation.projectTitle');
+    if (tnaForm.get('projectInformation.applicationConnection').value === 'yes') {
+      setFieldValidation('projectInformation.associatedProjectTitle');
+    }
+    setFieldValidation('projectInformation.preferredResearchInstallation.preference1');
+    setFieldValidation('projectInformation.preferredResearchInstallation.preference2');
+    setFieldValidation('projectInformation.preferredResearchInstallation.preference3');
+    setFieldValidation('projectInformation.rationale.context');
+    setFieldValidation('projectInformation.rationale.objective');
+    setFieldValidation('projectInformation.rationale.impact');
+    setFieldValidation('projectInformation.scientificQuality.stateArt');
+    setFieldValidation('projectInformation.scientificQuality.questionHypothesis');
+    setFieldValidation('projectInformation.scientificQuality.approach');
+    setFieldValidation('projectInformation.valorizationStrategy.strategy');
+
+    // participants validation
+    tnaForm.get('participants.participantFields').controls.forEach((control: any, i: number) => {
+        setFormArrayValidation('participants.participantFields', 'phone', i)
+        setFormArrayValidation('participants.participantFields', 'email', i)
+        setFormArrayOrganisationValidation('organisationName', i);
+        setFormArrayOrganisationValidation('organisationAddress', i);
+        setFormArrayOrganisationValidation('organisationCountry', i);
+      }
+    );
+  }
+
+  onSubmit(tnaId: any, action: any): void {
+    if (action == 'submitted') {
+      this.enableValidation(this.tnaForm);
+    } else {
+      const test: any = this.tnaForm.get('projectInformation.projectTitle');
+      console.log(test)
+      test.removeValidators([Validators.required])
+      test.updateValueAndValidity()
+    }
+
     if (this.tnaForm.invalid) {
       console.log(this.tnaForm.errors);
     } else {
-      console.log(this.tnaForm.value)
-      console.log(this.tnaForm.getRawValue())
+      let formValues = this.tnaForm.getRawValue();
+      formValues['recordStatus'] = action;
 
-      if (tnaId){
-        this.apiService.editTnaProject(this.tnaForm.getRawValue(), tnaId).subscribe(
-          data => {
+      if (tnaId) {
+          this.apiService.editTnaProject(formValues, tnaId).subscribe({
+          next: (data) => {
             console.log(data)
-            this.openSnackbar('TNA project successfully created', 'Dismiss');
+            this.openSnackbar('TNA project successfully modified', 'Dismiss');
             this.router.navigate([`/user-profile/${this.userID}`]);
           },
-          error => {
+          error: (error) => {
             console.log("Submission Failed!");
             this.openSnackbar('Submission Failed! Contact FAANG helpdesk', 'Dismiss');
-          }
-        );
+          },
+            complete: () => {
+            }
+        });
       } else {
-        this.apiService.createTnaProject(this.tnaForm.getRawValue()).subscribe(
-          data => {
-            console.log(data)
-            this.openSnackbar('TNA project successfully created', 'Dismiss');
-            this.router.navigate([`/user-profile/${this.userID}`]);
-          },
-          error => {
-            console.log("Submission Failed!");
-            this.openSnackbar('Submission Failed! Contact FAANG helpdesk', 'Dismiss');
-          }
-        );
+        this.apiService.createTnaProject(formValues).subscribe(
+          {
+            next: (data) => {
+              console.log(data)
+              this.openSnackbar('TNA project successfully created', 'Dismiss');
+              this.router.navigate([`/user-profile/${this.userID}`]);
+            },
+            error: (error) => {
+              console.log("Submission Failed!");
+              this.openSnackbar('Submission Failed! Contact FAANG helpdesk', 'Dismiss');
+            },
+            complete: () => {
+            }
+          });
       }
     }
   }
@@ -290,7 +339,7 @@ export class TnaComponent implements OnInit {
     });
   }
 
-  private editParticipantFormGroup(participantObj : { [key: string]: any }): FormGroup {
+  private editParticipantFormGroup(participantObj: { [key: string]: any }): FormGroup {
     return new FormGroup({
       id: new FormControl({value: participantObj['id'], disabled: true}),
       firstname: new FormControl({value: participantObj['firstname'], disabled: true}, Validators.required),
@@ -299,8 +348,14 @@ export class TnaComponent implements OnInit {
       email: new FormControl({value: participantObj['email'], disabled: true}, [Validators.email]),
       organisation: new FormGroup({
         organisationName: new FormControl({value: participantObj['organisation']['organisationName'], disabled: true}),
-        organisationAddress: new FormControl({value: participantObj['organisation']['organisationAddress'], disabled: true}),
-        organisationCountry: new FormControl({value: participantObj['organisation']['organisationCountry'], disabled: true}),
+        organisationAddress: new FormControl({
+          value: participantObj['organisation']['organisationAddress'],
+          disabled: true
+        }),
+        organisationCountry: new FormControl({
+          value: participantObj['organisation']['organisationCountry'],
+          disabled: true
+        }),
       }),
     });
   }
@@ -341,7 +396,6 @@ export class TnaComponent implements OnInit {
       verticalPosition: 'top',
       duration: 2000
     });
-
     this.snackBarRef.onAction().subscribe(() => {
       this.router.navigate([`/user-profile/${this.userID}`]);
     });
