@@ -37,7 +37,7 @@ export class ApiService {
     const res: { [key: string]: any } = {}
     return this.http.get(url, this.httpOptions).pipe(
       map((data: any) => {
-        res['data'] = data;
+        res['data'] = data['results'];
         return res;
       }),
       catchError(this.handleError),

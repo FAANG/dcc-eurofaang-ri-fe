@@ -63,7 +63,8 @@ export class UserProfileComponent implements OnInit, AfterViewInit{
             id: entry['id'],
             title: entry['project_title'],
             pi: "pi name", //entry['principal_investigator']['first_name'] + " " + entry['principal_investigator']['last_name'],
-            connected: entry['associated_application']
+            connected: entry['associated_application'],
+            connectedProject: entry['associated_application_title'],
           }as TnaDisplayInterface));
           this.dataSource.data = this.projectsList;
         },
