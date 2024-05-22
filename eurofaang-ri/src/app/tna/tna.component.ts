@@ -261,14 +261,52 @@ export class TnaComponent implements OnInit {
     );
   }
 
+  disableValidation(tnaForm: any) {
+    function removeFieldValidation(formControl: string) {
+      tnaForm.get(formControl).removeValidators([Validators.required]);
+      tnaForm.get(formControl).updateValueAndValidity();
+    }
+    function removeFormArrayValidation(formControl: string, fieldName: string, index: number) {
+      tnaForm.get(formControl).at(index).controls[fieldName].removeValidators([Validators.required]);
+      tnaForm.get(formControl).at(index).controls[fieldName].updateValueAndValidity();
+    }
+    function removeFormArrayOrganisationValidation(fieldName: string, index: number) {
+      tnaForm.get('participants.participantFields').at(index).controls['organisation'].controls[fieldName].removeValidators([Validators.required]);
+      tnaForm.get('participants.participantFields').at(index).controls['organisation'].controls[fieldName].updateValueAndValidity();
+    }
+
+    removeFieldValidation('projectInformation.projectTitle');
+    if (tnaForm.get('projectInformation.applicationConnection').value === 'yes') {
+      removeFieldValidation('projectInformation.associatedProjectTitle');
+    }
+    removeFieldValidation('projectInformation.preferredResearchInstallation.preference1');
+    removeFieldValidation('projectInformation.preferredResearchInstallation.preference2');
+    removeFieldValidation('projectInformation.preferredResearchInstallation.preference3');
+    removeFieldValidation('projectInformation.rationale.context');
+    removeFieldValidation('projectInformation.rationale.objective');
+    removeFieldValidation('projectInformation.rationale.impact');
+    removeFieldValidation('projectInformation.scientificQuality.stateArt');
+    removeFieldValidation('projectInformation.scientificQuality.questionHypothesis');
+    removeFieldValidation('projectInformation.scientificQuality.approach');
+    removeFieldValidation('projectInformation.valorizationStrategy.strategy');
+
+    // participants validation
+    tnaForm.get('participants.participantFields').controls.forEach((control: any, i: number) => {
+        removeFormArrayValidation('participants.participantFields', 'phone', i)
+        removeFormArrayValidation('participants.participantFields', 'email', i)
+        removeFormArrayOrganisationValidation('organisationName', i);
+        removeFormArrayOrganisationValidation('organisationAddress', i);
+        removeFormArrayOrganisationValidation('organisationCountry', i);
+      }
+    );
+  }
+
   onSubmit(tnaId: any, action: any): void {
     if (action == 'submitted') {
       this.enableValidation(this.tnaForm);
     } else {
       const test: any = this.tnaForm.get('projectInformation.projectTitle');
-      console.log(test)
-      test.removeValidators([Validators.required])
-      test.updateValueAndValidity()
+      this.disableValidation(this.tnaForm);
     }
 
     if (this.tnaForm.invalid) {
@@ -365,9 +403,10 @@ export class TnaComponent implements OnInit {
   }
 
   getTnaProjects() {
-    this.apiService.getTnaProjects().subscribe(
+    this.apiService.getTnaProjects('', 0, false).subscribe(
       {
         next: (data) => {
+          console.log(data)
           this.tnaProjectsList = data['data'].map((entry: { [x: string]: any; }) => ({
             id: Number(entry['id']),
             title: entry['project_title']

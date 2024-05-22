@@ -2,26 +2,25 @@
   <div class="item">
     <h1 class="profile-heading">User profile</h1>
     <mat-card class="profile-card">
-      <mat-card-header>
-        <mat-card-title>{{ userProfile?.first_name }} {{ userProfile?.last_name }}</mat-card-title>
-        <mat-card-subtitle>{{ userProfile?.username }}</mat-card-subtitle>
-      </mat-card-header>
       <mat-card-content>
         <mat-list role="list">
           <mat-list-item role="listitem">
-            <b>Email: </b>alexey&#64;ebi.ac.uk
+            <b>Name: </b>{{ userProfile?.first_name }} {{ userProfile?.last_name }}
           </mat-list-item>
           <mat-list-item role="listitem">
-            <b>Phone: </b> NA
+            <b>Email: </b>{{ userProfile?.email }}
           </mat-list-item>
           <mat-list-item role="listitem">
-            <b>Organization name: </b>EMBL-EBI
+            <b>Phone: </b> {{ userProfile?.phone_number }}
           </mat-list-item>
           <mat-list-item role="listitem">
-            <b>Organization country: </b>UK
+            <b>Organization name: </b>{{ userProfile?.organization_name }}
           </mat-list-item>
           <mat-list-item role="listitem">
-            <b>Role: </b>Principal Investigator
+            <b>Organization country: </b>{{ userProfile?.organization_country }}
+          </mat-list-item>
+          <mat-list-item role="listitem">
+            <b>Role: </b>{{ userProfile?.role }}
           </mat-list-item>
         </mat-list>
       </mat-card-content>
@@ -32,21 +31,26 @@
       TNA Applications
       <button mat-flat-button color="primary" routerLink="/tna/new">Start New Application</button>
     </h1>
-    <table mat-table [dataSource]="dataSource" class="mat-elevation-z8">
 
+    <mat-form-field style="width: 100%; margin-top: 10px;">
+      <mat-label>Search</mat-label>
+      <input (keyup)="searchChanged($event)" matInput name="searchField" placeholder="Search">
+    </mat-form-field>
+
+    <table mat-table matSort matSortDisableClear [dataSource]="dataSource" class="mat-elevation-z8">
       <ng-container matColumnDef="id">
         <th mat-header-cell *matHeaderCellDef> ID</th>
         <td mat-cell *matCellDef="let element"> {{ element.id }}</td>
       </ng-container>
 
       <ng-container matColumnDef="title">
-        <th mat-header-cell *matHeaderCellDef> Title</th>
+        <th mat-header-cell *matHeaderCellDef mat-sort-header> Title</th>
         <td mat-cell *matCellDef="let element"><a routerLink="/tna/edit/{{element.id}}">{{ element.title }} </a></td>
       </ng-container>
 
       <ng-container matColumnDef="pi">
         <th mat-header-cell *matHeaderCellDef> Principal Investigator</th>
-        <td mat-cell *matCellDef="let element"> {{ element.pi|json }}</td>
+        <td mat-cell *matCellDef="let element"> {{ element.pi }}</td>
       </ng-container>
 
       <ng-container matColumnDef="connected">
@@ -65,5 +69,6 @@
       <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
       <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
     </table>
+    <mat-paginator pageSize="5" [length]="totalHits" (page)="onPageChange($event)"></mat-paginator>
   </div>
 </div>

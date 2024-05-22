@@ -32,12 +32,31 @@ export class ApiService {
     };
   }
 
-  getTnaProjects() {
-    const url = `${URL}/api/v1/tna/`;
-    const res: { [key: string]: any } = {}
+  getTnaProjects(searchTerm: string, pageNumber: number, pagination: boolean) {
+    let url = `${URL}/api/v1/tna/`;
+    // defines whether the data will be paginated on the backend
+    const paginationParam = url.includes('?') ? `&pagination=${pagination}` : `?pagination=${pagination}`
+    url = url + paginationParam;
+
+    if (searchTerm){
+      const searchParam = url.includes('?') ? `&search=${searchTerm}` : `?search=${searchTerm}`
+      url = url + searchParam;
+    }
+    if (pageNumber){
+      const pageParam = url.includes('?') ? `&page=${pageNumber}` : `?page=${pageNumber}`
+      url = url + pageParam;
+    }
+
+    let res: { [key: string]: any } = {}
     return this.http.get(url, this.httpOptions).pipe(
       map((data: any) => {
-        res['data'] = data['results'];
+        console.log(data)
+        if ('results' in data) {
+          res['data'] = data['results'];
+          res['count'] = data['count'];
+        } else{
+          res['data'] = data;
+        }
         return res;
       }),
       catchError(this.handleError),
