@@ -1,8 +1,9 @@
-import {Injectable} from '@angular/core';
+import {Inject, Injectable, PLATFORM_ID} from '@angular/core';
 import {HttpClient, HttpErrorResponse, HttpBackend, HttpHeaders} from '@angular/common/http';
 import {throwError} from 'rxjs';
 import {catchError, map} from 'rxjs/operators';
 import {URL} from "../auth";
+import {isPlatformBrowser} from "@angular/common";
 
 
 @Injectable({
@@ -15,21 +16,30 @@ export class ApiService {
   };
 
   constructor(private http: HttpClient,
-              handler: HttpBackend) {
+              handler: HttpBackend,
+              @Inject(PLATFORM_ID) private platformId: Object) {
     // service is not intercepted by AuthInterceptor.
     this.http = new HttpClient(handler);
 
     // set authorisation token
-    const userData: string | null = sessionStorage.getItem('userData');
-    let token = '';
-    if (userData) {
-      token = JSON.parse(userData)['token'];
+    if (isPlatformBrowser(this.platformId)) {
+      const userData: string | null = sessionStorage.getItem('userData');
+      let token = '';
+      if (userData) {
+        token = JSON.parse(userData)['token'];
+      }
+      this.httpOptions = {
+        headers: new HttpHeaders({
+          "Authorization": "Token " + token
+        })
+      };
+    } else {
+      this.httpOptions = {
+        headers: new HttpHeaders({
+          "Authorization": "Token "
+        })
+      };
     }
-    this.httpOptions = {
-      headers: new HttpHeaders({
-        "Authorization": "Token " + token
-      })
-    };
   }
 
   getCountries() {
