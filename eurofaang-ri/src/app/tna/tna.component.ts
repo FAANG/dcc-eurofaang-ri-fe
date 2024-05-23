@@ -403,7 +403,7 @@ export class TnaComponent implements OnInit {
   }
 
   getTnaProjects() {
-    this.apiService.getTnaProjects('', 0, false).subscribe(
+    this.apiService.getTnaProjects('', 0, false, 'project_title', 'asc').subscribe(
       {
         next: (data) => {
           console.log(data)

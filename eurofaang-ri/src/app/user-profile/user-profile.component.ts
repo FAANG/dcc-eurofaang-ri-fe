@@ -10,12 +10,15 @@ import {MatTableDataSource, MatTableModule} from "@angular/material/table";
 import {ApiService} from '../services/api.service';
 import {MatFormField} from "@angular/material/form-field";
 import {FormsModule} from "@angular/forms";
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
+import {MatFormFieldModule} from '@angular/material/form-field';
+import {MatInputModule} from '@angular/material/input';
 import {MatPaginator} from "@angular/material/paginator";
-import { MatPaginatorModule } from '@angular/material/paginator';
+import {MatPaginatorModule} from '@angular/material/paginator';
 import {Location} from '@angular/common';
-import {MatSort} from "@angular/material/sort";
+import {MatSort, MatSortModule} from '@angular/material/sort';
+import {merge, startWith, switchMap, Observable, of as observableOf, pipe} from "rxjs";
+import {catchError, map} from "rxjs/operators";
+
 
 export interface TnaDisplayInterface {
   title: string;
@@ -28,26 +31,31 @@ export interface TnaDisplayInterface {
   selector: 'app-user-profile',
   standalone: true,
   imports: [MatCardModule, CommonModule, MatButtonModule, MatListModule, MatTableModule, RouterLink,
-    MatFormField, FormsModule, MatFormFieldModule, MatInputModule, MatPaginator, MatPaginatorModule],
+    MatFormField, FormsModule, MatFormFieldModule, MatInputModule, MatPaginator, MatPaginatorModule, MatSortModule],
   providers: [ApiService],
   templateUrl: './user-profile.component.html',
   styleUrl: './user-profile.component.css'
 })
-export class UserProfileComponent implements OnInit, AfterViewInit{
-  userProfile: UserProfile|null = null;
+export class UserProfileComponent implements OnInit, AfterViewInit {
+  userProfile: UserProfile | null = null;
   displayedColumns: string[] = ['id', 'title', 'pi', 'connected'];
   projectsList: TnaDisplayInterface[] = [];
-  dataSource: MatTableDataSource<any> =  new MatTableDataSource<any>([]);
+  // dataSource: MatTableDataSource<any> =  new MatTableDataSource<any>([]);
+  // dataSource = new MatTableDataSource();
   timer: any;
   totalHits = 0;
   urlTree: string = '';
   location: Location;
   queryParams: any = {};
+  currentSearchTerm: string = '';
+
+  // @ViewChild(MatPaginator, { static: true }) paginator: MatPaginator = <MatPaginator>{};
+  // @ViewChild('paginator') paginator: MatPaginator = <MatPaginator>{};
 
 
-  @ViewChild(MatPaginator, { static: true }) paginator: MatPaginator = <MatPaginator>{};
-  @ViewChild(MatSort, { static: true }) sort: MatSort = <MatSort>{};
-
+  dataSource = new MatTableDataSource<any>();
+  @ViewChild(MatPaginator) paginator: MatPaginator = <MatPaginator>{};
+  @ViewChild(MatSort) sort: MatSort = <MatSort>{};
 
   constructor(private userProfileService: UserProfileService,
               private activatedRoute: ActivatedRoute,
@@ -80,55 +88,22 @@ export class UserProfileComponent implements OnInit, AfterViewInit{
       }
     });
 
-    this.getTnaProjects('', 0);
+    this.sort.active = 'id';
+    this.sort.direction = 'asc';
+
+    console.log(this.sort)
+
+    this.getTnaProjects('', 0, 'id', 'asc');
+
   }
 
   ngAfterViewInit() {
-    // this.dataSource.paginator = this.paginator
-    // Reset back to the first page when sort order is changed
-    // this.sort.sortChange.subscribe(() => this.paginator.pageIndex = 0);
-
-
-    // merge(this.paginator.page) // this.sort.sortChange, this.paginator.page
-    //   .pipe(
-    //     startWith({}),
-    //     switchMap(() => {
-    //       // this.spinner.show();
-    //       // if(this.sort.active && this.sort.direction) {
-    //       //   this.query['sort'] = [this.sort.active, this.sort.direction];
-    //       //   this.sortUpdate.emit(this.query['sort']);
-    //       // } else {
-    //       //   this.query['sort'] = this.defaultSort;
-    //       // }
-    //       // this.updateSortingUrlParameters(this.query['sort'][0], this.query['sort'][1]);
-    //
-    //       // this.query['from_'] = this.paginator.pageIndex * this.paginator.pageSize;
-    //       return this.apiService.getTnaProjects('', 1,  true);
-    //     }),
-    //     map(data => {
-    //       return data;
-    //     }),
-    //     catchError(() => {
-    //       // this.spinner.hide();
-    //       return observableOf([]);
-    //     })
-    //   ).subscribe((res: any) => {
-    //   this.projectsList = res['data'].map((entry: { [x: string]: any; }) => ({
-    //     id: entry['id'],
-    //     title: entry['project_title'],
-    //     pi: entry['principal_investigator']['first_name'] + " " + entry['principal_investigator']['last_name'],
-    //     connected: entry['associated_application'],
-    //     connectedProject: entry['associated_application_title'],
-    //   }as TnaDisplayInterface));
-    //
-    //   this.dataSource.data = this.projectsList;
-    //   this.totalHits = res['count'];
-    //   // this.spinner.hide();
-    // });
+    this.dataSource.paginator = this.paginator;
+    this.dataSource.sort = this.sort;
   }
 
-  getTnaProjects(searchTerm: string, pageNumber: number) {
-    this.apiService.getTnaProjects(searchTerm, pageNumber,  true).subscribe(
+  getTnaProjects(searchTerm: string, pageNumber: number, sortTerm: string, sortDirection: string) {
+    this.apiService.getTnaProjects(searchTerm, pageNumber, true, sortTerm, sortDirection).subscribe(
       {
         next: (data) => {
           this.projectsList = data['data'].map((entry: { [x: string]: any; }) => ({
@@ -137,21 +112,17 @@ export class UserProfileComponent implements OnInit, AfterViewInit{
             pi: entry['principal_investigator']['first_name'] + " " + entry['principal_investigator']['last_name'],
             connected: entry['associated_application'],
             connectedProject: entry['associated_application_title'],
-          }as TnaDisplayInterface));
+          } as TnaDisplayInterface));
           console.log(data)
 
-          setTimeout(() => {
-            // this.organismName = data.organism;
-            // this.dataSourceRecords = new MatTableDataSource<any>(this.bioSampleObj.specimens);
-            // this.specBioSampleTotalCount = unpackedData?.length;
-            // this.dataSourceRecords.paginator = this.paginator;
-            // this.dataSourceRecords.sort = this.sort;
-            this.dataSource.data = this.projectsList;
-            this.dataSource.paginator = this.paginator;
-          }, 500);
-          console.log("this.paginator.page: ", this.paginator)
-
+          // this.dataSourceRecords.sort = this.sort;
+          this.dataSource = new MatTableDataSource<any>(this.projectsList);
+          this.dataSource.sort = this.sort;
           this.totalHits = data['count'];
+
+          console.log(this.sort)
+
+
         },
         error: (err: any) => {
           console.log(err.message);
@@ -190,9 +161,7 @@ export class UserProfileComponent implements OnInit, AfterViewInit{
   }
 
   applySearchFilter(searchTerm: string) {
-    // reset query params before applying search
-
-    this.apiService.getTnaProjects(searchTerm, 1, true).subscribe(
+    this.apiService.getTnaProjects(searchTerm, 1, true, 'id', 'asc').subscribe(
       {
         next: (data) => {
           this.projectsList = data['data'].map((entry: { [x: string]: any; }) => ({
@@ -201,15 +170,14 @@ export class UserProfileComponent implements OnInit, AfterViewInit{
             pi: entry['principal_investigator']['first_name'] + " " + entry['principal_investigator']['last_name'],
             connected: entry['associated_application'],
             connectedProject: entry['associated_application_title'],
-          }as TnaDisplayInterface));
+          } as TnaDisplayInterface));
           this.dataSource.data = this.projectsList;
           setTimeout(() => {
             this.dataSource.paginator = this.paginator;
-            this.paginator.pageIndex = 0;
+            this.dataSource.sort = this.sort;
+            // this.paginator.pageIndex = 0;
+            this.totalHits = data['count'];
           }, 50);
-
-
-          this.totalHits = data['count'];
         },
         error: (err: any) => {
           console.log(err.message);
@@ -218,38 +186,35 @@ export class UserProfileComponent implements OnInit, AfterViewInit{
         }
       }
     );
-    // Update query parameters to pass to route
-    // this.updateUrlParameters(searchTerm, 'searchTerm')
+  }
 
+  customSort(event: any) {
+    console.log(event.active, event.direction)
+    // this.paginator.pageIndex = 0;
+    console.log(this.sort)
 
+    this.getTnaProjects(this.currentSearchTerm, 1, this.getApiTerm(event.active), event.direction)
+  }
 
-
+  getApiTerm(term: string) {
+    const apiTerms: { [index: string]: any } = {
+      title: 'project_title'
+    }
+    return apiTerms[term];
 
   }
 
+
   onPageChange(event: any) {
-    console.log(event)
     const currentPage = +event.pageIndex + 1;
-    this.getTnaProjects('', currentPage);
-
-
-    // const params = {
-    //   pageIndex: this.paginator ? this.paginator.pageIndex : 0,
-    // };
-    // this.urlTree = this.router.createUrlTree([], {
-    //   relativeTo: this.activatedRoute,
-    //   queryParams: params,
-    //   queryParamsHandling: 'merge',
-    // }).toString();
-    //
-    // //Update route with Query Params
-    // this.location.go(this.urlTree);
+    console.log(this.sort)
+    this.getTnaProjects(this.currentSearchTerm, currentPage, this.getApiTerm(this.sort.active), this.sort.direction)
   }
 
   resetPagination(pageIndex: number) {
     if (pageIndex != 0) {
       this.queryParams['pageIndex'] = pageIndex;
-      if (this.paginator){
+      if (this.paginator) {
         this.paginator.pageIndex = pageIndex;
         // emit an event so that the table will refresh the data
         this.paginator.page.next({

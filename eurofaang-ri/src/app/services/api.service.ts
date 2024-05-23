@@ -32,7 +32,7 @@ export class ApiService {
     };
   }
 
-  getTnaProjects(searchTerm: string, pageNumber: number, pagination: boolean) {
+  getTnaProjects(searchTerm: string, pageNumber: number, pagination: boolean, sortTerm: string, sortDirection: string) {
     let url = `${URL}/api/v1/tna/`;
     // defines whether the data will be paginated on the backend
     const paginationParam = url.includes('?') ? `&pagination=${pagination}` : `?pagination=${pagination}`
@@ -46,6 +46,17 @@ export class ApiService {
       const pageParam = url.includes('?') ? `&page=${pageNumber}` : `?page=${pageNumber}`
       url = url + pageParam;
     }
+    console.log(sortTerm)
+    console.log(sortDirection)
+    if (sortTerm){
+      const direction: '-'|'' = sortDirection === 'desc' ? '-' : '';
+      const pageParam = url.includes('?') ? `&ordering=${direction}${sortTerm}` : `?ordering=${direction}${sortTerm}`
+      url = url + pageParam;
+    }
+    console.log(url)
+
+  // http://localhost:8000/api/v1/tna/?ordering=-project_title
+    // TODO: work on ordering
 
     let res: { [key: string]: any } = {}
     return this.http.get(url, this.httpOptions).pipe(
