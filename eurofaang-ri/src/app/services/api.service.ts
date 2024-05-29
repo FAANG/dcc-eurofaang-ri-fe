@@ -1,5 +1,5 @@
 import {Injectable} from '@angular/core';
-import {HttpClient, HttpErrorResponse, HttpBackend, HttpHeaders} from '@angular/common/http';
+import {HttpClient, HttpErrorResponse, HttpHeaders} from '@angular/common/http';
 import {throwError} from 'rxjs';
 import {catchError, map} from 'rxjs/operators';
 import {URL} from "../auth";
@@ -14,23 +14,7 @@ export class ApiService {
     })
   };
 
-  constructor(private http: HttpClient,
-              handler: HttpBackend) {
-    // service is not intercepted by AuthInterceptor.
-    this.http = new HttpClient(handler);
-
-    // set authorisation token
-    const userData: string | null = sessionStorage.getItem('userData');
-    let token = '';
-    if (userData) {
-      token = JSON.parse(userData)['token'];
-    }
-    this.httpOptions = {
-      headers: new HttpHeaders({
-        "Authorization": "Token " + token
-      })
-    };
-  }
+  constructor(private http: HttpClient) {}
 
   getTnaProjects(searchTerm: string, pageNumber: number, pagination: boolean, sortTerm: string, sortDirection: string) {
     let url = `${URL}/api/v1/tna/`;
@@ -46,22 +30,14 @@ export class ApiService {
       const pageParam = url.includes('?') ? `&page=${pageNumber}` : `?page=${pageNumber}`
       url = url + pageParam;
     }
-    console.log(sortTerm)
-    console.log(sortDirection)
     if (sortTerm){
       const direction: '-'|'' = sortDirection === 'desc' ? '-' : '';
       const pageParam = url.includes('?') ? `&ordering=${direction}${sortTerm}` : `?ordering=${direction}${sortTerm}`
       url = url + pageParam;
     }
-    console.log(url)
-
-  // http://localhost:8000/api/v1/tna/?ordering=-project_title
-    // TODO: work on ordering
-
     let res: { [key: string]: any } = {}
     return this.http.get(url, this.httpOptions).pipe(
       map((data: any) => {
-        console.log(data)
         if ('results' in data) {
           res['data'] = data['results'];
           res['count'] = data['count'];
@@ -109,7 +85,6 @@ export class ApiService {
   }
 
   editTnaProject(body: any, tnaId: any) {
-    console.log(body)
     const url = `${URL}/api/v1/tna/${tnaId}/`;
     return this.http.put(url, body, this.httpOptions).pipe(
       map((data: any) => {

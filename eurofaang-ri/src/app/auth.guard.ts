@@ -1,16 +1,23 @@
-import {CanActivateFn, Router} from '@angular/router';
-import {inject, Injectable} from "@angular/core";
+import {ActivatedRoute, CanActivateFn, Router} from '@angular/router';
+import {Inject, inject, Injectable} from "@angular/core";
+import {isPlatformBrowser} from "@angular/common";
+import { PLATFORM_ID } from '@angular/core';
 
 @Injectable()
 export class PermissionsService {
 
-  constructor(private router: Router) { }
+  constructor(private router: Router, @Inject(PLATFORM_ID) private platformId: Object) {
+  }
 
   canActivate(): boolean {
-    if (sessionStorage.getItem("userData")) {
-      return true;
+    if(isPlatformBrowser(this.platformId))//you are client side
+    {
+      if (sessionStorage.getItem("userData")) {
+        return true;
+      }
+      this.router.navigateByUrl('/login');
+      return false;
     }
-    this.router.navigateByUrl('/login');
     return false;
   }
 }

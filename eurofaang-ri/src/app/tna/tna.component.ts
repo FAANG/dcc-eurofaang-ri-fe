@@ -86,11 +86,9 @@ export class TnaComponent implements OnInit {
               private apiService: ApiService,
               public snackbar: MatSnackBar,) {
 
-    // get loggedIn user details
     const userData: string | null = sessionStorage.getItem('userData');
 
     if (userData) {
-      console.log(userData)
       const userDataObj = JSON.parse(userData);
       this.userID = parseInt(userDataObj['id']);
       this.userFullName = userDataObj['first_name'] + " " + userDataObj['last_name'];
@@ -140,7 +138,6 @@ export class TnaComponent implements OnInit {
       this.apiService.getTnaProjectDetails(this.tnaId).subscribe(
         {
           next: (data) => {
-            console.log(data)
             if (!("data" in data)) {
               this.router.navigate(['404']);
             } else {
@@ -318,12 +315,10 @@ export class TnaComponent implements OnInit {
       if (tnaId) {
           this.apiService.editTnaProject(formValues, tnaId).subscribe({
           next: (data) => {
-            console.log(data)
             this.openSnackbar('TNA project successfully modified', 'Dismiss');
             this.router.navigate([`/user-profile/${this.userID}`]);
           },
           error: (error) => {
-            console.log("Submission Failed!");
             this.openSnackbar('Submission Failed! Contact FAANG helpdesk', 'Dismiss');
           },
             complete: () => {
@@ -333,12 +328,10 @@ export class TnaComponent implements OnInit {
         this.apiService.createTnaProject(formValues).subscribe(
           {
             next: (data) => {
-              console.log(data)
               this.openSnackbar('TNA project successfully created', 'Dismiss');
               this.router.navigate([`/user-profile/${this.userID}`]);
             },
             error: (error) => {
-              console.log("Submission Failed!");
               this.openSnackbar('Submission Failed! Contact FAANG helpdesk', 'Dismiss');
             },
             complete: () => {
@@ -406,7 +399,6 @@ export class TnaComponent implements OnInit {
     this.apiService.getTnaProjects('', 0, false, 'project_title', 'asc').subscribe(
       {
         next: (data) => {
-          console.log(data)
           this.tnaProjectsList = data['data'].map((entry: { [x: string]: any; }) => ({
             id: Number(entry['id']),
             title: entry['project_title']

@@ -16,8 +16,7 @@ import {MatPaginator} from "@angular/material/paginator";
 import {MatPaginatorModule} from '@angular/material/paginator';
 import {Location} from '@angular/common';
 import {MatSort, MatSortModule} from '@angular/material/sort';
-import {merge, startWith, switchMap, Observable, of as observableOf, pipe} from "rxjs";
-import {catchError, map} from "rxjs/operators";
+import {MatIcon} from "@angular/material/icon";
 
 
 export interface TnaDisplayInterface {
@@ -25,34 +24,29 @@ export interface TnaDisplayInterface {
   id: number;
   pi: string;
   connected: string;
+  tnaOwner: number;
+  enableEdit: boolean;
 }
 
 @Component({
   selector: 'app-user-profile',
   standalone: true,
   imports: [MatCardModule, CommonModule, MatButtonModule, MatListModule, MatTableModule, RouterLink,
-    MatFormField, FormsModule, MatFormFieldModule, MatInputModule, MatPaginator, MatPaginatorModule, MatSortModule],
+    MatFormField, FormsModule, MatFormFieldModule, MatInputModule, MatPaginator, MatPaginatorModule, MatSortModule, MatIcon],
   providers: [ApiService],
   templateUrl: './user-profile.component.html',
   styleUrl: './user-profile.component.css'
 })
 export class UserProfileComponent implements OnInit, AfterViewInit {
   userProfile: UserProfile | null = null;
-  displayedColumns: string[] = ['id', 'title', 'pi', 'connected'];
+  displayedColumns: string[] = ['id', 'title', 'pi', 'connected', 'actions'];
   projectsList: TnaDisplayInterface[] = [];
-  // dataSource: MatTableDataSource<any> =  new MatTableDataSource<any>([]);
-  // dataSource = new MatTableDataSource();
   timer: any;
   totalHits = 0;
   urlTree: string = '';
   location: Location;
   queryParams: any = {};
   currentSearchTerm: string = '';
-
-  // @ViewChild(MatPaginator, { static: true }) paginator: MatPaginator = <MatPaginator>{};
-  // @ViewChild('paginator') paginator: MatPaginator = <MatPaginator>{};
-
-
   dataSource = new MatTableDataSource<any>();
   @ViewChild(MatPaginator) paginator: MatPaginator = <MatPaginator>{};
   @ViewChild(MatSort) sort: MatSort = <MatSort>{};
@@ -67,32 +61,17 @@ export class UserProfileComponent implements OnInit, AfterViewInit {
 
 
   ngOnInit(): void {
-    // this.paginator.pageIndex = 0
-    // extract query parameters
-    // this.activatedRoute.queryParams.subscribe(params => {
-    //   this.queryParams = {...params};
-    // });
-
-    // if (this.queryParams['pageIndex']){
-    //   this.resetPagination(this.queryParams['pageIndex']);
-    // }
-
     const userId = this.activatedRoute.snapshot.paramMap.get('id');
     this.userProfileService.getUserProfile(userId).subscribe({
       next: (data) => {
-        console.log(data);
         this.userProfile = data as UserProfile;
       },
       error: (error) => {
         console.log(error);
       }
     });
-
     this.sort.active = 'id';
     this.sort.direction = 'asc';
-
-    console.log(this.sort)
-
     this.getTnaProjects('', 0, 'id', 'asc');
 
   }
@@ -112,41 +91,18 @@ export class UserProfileComponent implements OnInit, AfterViewInit {
             pi: entry['principal_investigator']['first_name'] + " " + entry['principal_investigator']['last_name'],
             connected: entry['associated_application'],
             connectedProject: entry['associated_application_title'],
+            tnaOwner: parseInt(entry['tna_owner']),
+            enableEdit: this.userProfile ? parseInt(entry['tna_owner']) === parseInt(this.userProfile['id']) : false,
           } as TnaDisplayInterface));
-          console.log(data)
-
-          // this.dataSourceRecords.sort = this.sort;
           this.dataSource = new MatTableDataSource<any>(this.projectsList);
           this.dataSource.sort = this.sort;
           this.totalHits = data['count'];
-
-          console.log(this.sort)
-
-
         },
         error: (err: any) => {
           console.log(err.message);
         },
         complete: () => {
           console.log(this.paginator)
-        }
-      }
-    );
-  }
-
-  getUserDetails(userId: number) {
-    this.apiService.getUserDetails(userId).subscribe(
-      {
-        next: (data) => {
-          const name = `${data['data']['first_name']} ${data['data']['last_name']}`
-          console.log(data['data']['first_name'])
-          return name;
-
-        },
-        error: (err: any) => {
-          console.log(err.message);
-        },
-        complete: () => {
         }
       }
     );
@@ -170,6 +126,8 @@ export class UserProfileComponent implements OnInit, AfterViewInit {
             pi: entry['principal_investigator']['first_name'] + " " + entry['principal_investigator']['last_name'],
             connected: entry['associated_application'],
             connectedProject: entry['associated_application_title'],
+            tnaOwner: parseInt(entry['tna_owner']),
+            enableEdit: this.userProfile ? parseInt(entry['tna_owner']) === parseInt(this.userProfile['id']) : false,
           } as TnaDisplayInterface));
           this.dataSource.data = this.projectsList;
           setTimeout(() => {
@@ -189,10 +147,6 @@ export class UserProfileComponent implements OnInit, AfterViewInit {
   }
 
   customSort(event: any) {
-    console.log(event.active, event.direction)
-    // this.paginator.pageIndex = 0;
-    console.log(this.sort)
-
     this.getTnaProjects(this.currentSearchTerm, 1, this.getApiTerm(event.active), event.direction)
   }
 
@@ -201,30 +155,11 @@ export class UserProfileComponent implements OnInit, AfterViewInit {
       title: 'project_title'
     }
     return apiTerms[term];
-
   }
-
 
   onPageChange(event: any) {
     const currentPage = +event.pageIndex + 1;
-    console.log(this.sort)
     this.getTnaProjects(this.currentSearchTerm, currentPage, this.getApiTerm(this.sort.active), this.sort.direction)
-  }
-
-  resetPagination(pageIndex: number) {
-    if (pageIndex != 0) {
-      this.queryParams['pageIndex'] = pageIndex;
-      if (this.paginator) {
-        this.paginator.pageIndex = pageIndex;
-        // emit an event so that the table will refresh the data
-        this.paginator.page.next({
-          pageIndex: this.paginator.pageIndex,
-          pageSize: this.paginator.pageSize,
-          length: this.paginator.length
-        });
-      }
-
-    }
   }
 }
 
