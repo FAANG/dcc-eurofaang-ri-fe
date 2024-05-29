@@ -1,7 +1,10 @@
 .user-profile-container {
   display: flex;
-  justify-content: center;
   flex-direction: column;
+}
+
+.logout-item {
+  margin-left: auto;
 }
 
 h2 {

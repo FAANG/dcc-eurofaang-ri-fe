@@ -32,7 +32,8 @@ export interface TnaDisplayInterface {
   selector: 'app-user-profile',
   standalone: true,
   imports: [MatCardModule, CommonModule, MatButtonModule, MatListModule, MatTableModule, RouterLink,
-    MatFormField, FormsModule, MatFormFieldModule, MatInputModule, MatPaginator, MatPaginatorModule, MatSortModule, MatIcon],
+    MatFormField, FormsModule, MatFormFieldModule, MatInputModule, MatPaginator, MatPaginatorModule, MatSortModule,
+    MatIcon],
   providers: [ApiService],
   templateUrl: './user-profile.component.html',
   styleUrl: './user-profile.component.css'
@@ -79,6 +80,10 @@ export class UserProfileComponent implements OnInit, AfterViewInit {
   ngAfterViewInit() {
     this.dataSource.paginator = this.paginator;
     this.dataSource.sort = this.sort;
+  }
+
+  logOut() {
+    this.apiService.logOut();
   }
 
   getTnaProjects(searchTerm: string, pageNumber: number, sortTerm: string, sortDirection: string) {
