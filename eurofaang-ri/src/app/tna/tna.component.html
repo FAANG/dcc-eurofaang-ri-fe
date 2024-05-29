@@ -1,6 +1,13 @@
 <div class="main-container">
   <div class="containerElement">
-    <form [formGroup]="tnaForm" (ngSubmit)="onSubmit(tnaId)">
+    <div class="alert alert-danger alert-white rounded" *ngIf="!enableEdit">
+      <div class="icon"><i class="fa fa-times-circle"></i></div>
+      <strong>Important!</strong>  You do not have permission to edit this TNA Project details.
+      Please contact helpdesk if you have any query regarding this entry by sending us an email on
+      <a href="mailto:faang-dcc@ebi.ac.uk?Subject=Submission%20Tool%20Downtime" target="_top">
+        <span class="emailStyle">faang-dcc&#64;ebi.ac.uk</span></a>.
+    </div>
+    <form [formGroup]="tnaForm">
       <h1 class="form-heading">TNA User Information</h1>
       <hr/>
       <div class="fieldsPosition" style="display: none">
@@ -78,7 +85,7 @@
                   </mat-form-field>
                   <br>
                 </div>
-                <div class="removeButton">
+                <div class="removeButton" *ngIf="enableEdit">
                   <button mat-flat-button (click)="removeFilter(i)" color="warn">
                     Remove participant
                   </button>
@@ -86,7 +93,7 @@
               </div>
               <hr class="participant"/>
             </div>
-            <div class="icon-style">
+            <div class="icon-style" *ngIf="enableEdit">
               <button mat-flat-button color="primary" (click)="addFilterFormGroup()">
                 Add new participant
               </button>
@@ -103,7 +110,7 @@
           <div formGroupName="projectInformation" class="leftAlignxxx">
             <div class="leftAlign">
               <mat-radio-group aria-label="Select an option" formControlName="applicationConnection">
-                <mat-radio-button value="no">No</mat-radio-button>
+                <mat-radio-button value="no" [checked]="true">No</mat-radio-button>
                 <mat-radio-button value="yes">Yes</mat-radio-button>
               </mat-radio-group>
             </div>
@@ -292,9 +299,14 @@
         </div>
       </div>
       <div class="flex-container formButtons">
-        <div class="flex-child">
-          <button mat-flat-button color="primary" type="submit">Submit Form</button>
-        </div>
+        <ng-container *ngIf="enableEdit">
+          <div class="flex-child">
+            <button mat-flat-button color="primary" type="submit" (click)="onSubmit(tnaId, 'saved')">Save</button>
+          </div>
+          <div class="flex-child">
+            <button mat-flat-button color="primary" type="submit" (click)="onSubmit(tnaId, 'submitted')">Submit Form</button>
+          </div>
+        </ng-container>
         <div class="flex-child">
           <button mat-flat-button color="primary" routerLink="/user-profile/{{userID}}">Cancel</button>
         </div>

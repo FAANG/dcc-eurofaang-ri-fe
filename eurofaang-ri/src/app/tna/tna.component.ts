@@ -23,6 +23,7 @@ import {MatIcon} from "@angular/material/icon";
 import {ApiService} from '../services/api.service';
 import {researchInstallations} from './constants';
 import {MatSnackBar} from "@angular/material/snack-bar";
+import {countries} from '../shared/constants';
 
 @Component({
   selector: 'app-tna',
@@ -72,11 +73,12 @@ export class TnaComponent implements OnInit {
   thirdPreferences: string[] = researchInstallations;
   countriesList: string[] = [];
   tnaProjectsList: string[] = [];
-  userID: string = '';
+  userID: number = 0;
   userFullName: string = '';
   snackBarRef: any;
   tnaId: string = '';
   tnaProjectDetails: any;
+  enableEdit: boolean = true;
 
   constructor(private formBuilder: FormBuilder,
               private router: Router,
@@ -84,12 +86,11 @@ export class TnaComponent implements OnInit {
               private apiService: ApiService,
               public snackbar: MatSnackBar,) {
 
-    // get loggedIn user details
     const userData: string | null = sessionStorage.getItem('userData');
+
     if (userData) {
-      console.log(userData)
       const userDataObj = JSON.parse(userData);
-      this.userID = userDataObj['id'];
+      this.userID = parseInt(userDataObj['id']);
       this.userFullName = userDataObj['first_name'] + " " + userDataObj['last_name'];
     }
 
@@ -137,7 +138,6 @@ export class TnaComponent implements OnInit {
       this.apiService.getTnaProjectDetails(this.tnaId).subscribe(
         {
           next: (data) => {
-            console.log(data)
             if (!("data" in data)) {
               this.router.navigate(['404']);
             } else {
@@ -145,7 +145,9 @@ export class TnaComponent implements OnInit {
               // build form object with fetched data
               const tnaFormObj: object = this.buildFormValueObj(this.tnaProjectDetails);
               this.tnaForm.setValue(tnaFormObj);
-
+              if (!this.enableEdit) {
+                this.tnaForm.disable()
+              }
             }
           },
           error: (err: any) => {
@@ -156,11 +158,13 @@ export class TnaComponent implements OnInit {
         }
       );
     }
-    this.getCountries();
+    this.countriesList = countries;
     this.getTnaProjects();
   }
 
   buildFormValueObj(tnaProjectDetails: any) {
+    this.enableEdit = parseInt(tnaProjectDetails['tna_owner']) === this.userID
+      && tnaProjectDetails['record_status'] != 'submitted';
     const participantFields = [];
     const participantsFormArray = this.tnaForm.get('participants.participantFields') as FormArray;
     for (let obj of tnaProjectDetails['additional_participants']) {
@@ -210,43 +214,128 @@ export class TnaComponent implements OnInit {
       }
     }
     formObject['participants']['participantFields'] = participantFields;
-    console.log(participantFields)
-
     return formObject;
-
   }
 
-  onSubmit(tnaId: any): void {
+
+  enableValidation(tnaForm: any) {
+    function setFieldValidation(formControl: string) {
+      tnaForm.get(formControl).setValidators([Validators.required]);
+      tnaForm.get(formControl).updateValueAndValidity();
+    }
+    function setFormArrayValidation(formControl: string, fieldName: string, index: number) {
+      tnaForm.get(formControl).at(index).controls[fieldName].setValidators([Validators.required])
+      tnaForm.get(formControl).at(index).controls[fieldName].updateValueAndValidity();
+    }
+    function setFormArrayOrganisationValidation(fieldName: string, index: number) {
+      tnaForm.get('participants.participantFields').at(index).controls['organisation'].controls[fieldName].setValidators([Validators.required])
+      tnaForm.get('participants.participantFields').at(index).controls['organisation'].controls[fieldName].updateValueAndValidity();
+    }
+
+    setFieldValidation('projectInformation.projectTitle');
+    if (tnaForm.get('projectInformation.applicationConnection').value === 'yes') {
+      setFieldValidation('projectInformation.associatedProjectTitle');
+    }
+    setFieldValidation('projectInformation.preferredResearchInstallation.preference1');
+    setFieldValidation('projectInformation.preferredResearchInstallation.preference2');
+    setFieldValidation('projectInformation.preferredResearchInstallation.preference3');
+    setFieldValidation('projectInformation.rationale.context');
+    setFieldValidation('projectInformation.rationale.objective');
+    setFieldValidation('projectInformation.rationale.impact');
+    setFieldValidation('projectInformation.scientificQuality.stateArt');
+    setFieldValidation('projectInformation.scientificQuality.questionHypothesis');
+    setFieldValidation('projectInformation.scientificQuality.approach');
+    setFieldValidation('projectInformation.valorizationStrategy.strategy');
+
+    // participants validation
+    tnaForm.get('participants.participantFields').controls.forEach((control: any, i: number) => {
+        setFormArrayValidation('participants.participantFields', 'phone', i)
+        setFormArrayValidation('participants.participantFields', 'email', i)
+        setFormArrayOrganisationValidation('organisationName', i);
+        setFormArrayOrganisationValidation('organisationAddress', i);
+        setFormArrayOrganisationValidation('organisationCountry', i);
+      }
+    );
+  }
+
+  disableValidation(tnaForm: any) {
+    function removeFieldValidation(formControl: string) {
+      tnaForm.get(formControl).removeValidators([Validators.required]);
+      tnaForm.get(formControl).updateValueAndValidity();
+    }
+    function removeFormArrayValidation(formControl: string, fieldName: string, index: number) {
+      tnaForm.get(formControl).at(index).controls[fieldName].removeValidators([Validators.required]);
+      tnaForm.get(formControl).at(index).controls[fieldName].updateValueAndValidity();
+    }
+    function removeFormArrayOrganisationValidation(fieldName: string, index: number) {
+      tnaForm.get('participants.participantFields').at(index).controls['organisation'].controls[fieldName].removeValidators([Validators.required]);
+      tnaForm.get('participants.participantFields').at(index).controls['organisation'].controls[fieldName].updateValueAndValidity();
+    }
+
+    removeFieldValidation('projectInformation.projectTitle');
+    if (tnaForm.get('projectInformation.applicationConnection').value === 'yes') {
+      removeFieldValidation('projectInformation.associatedProjectTitle');
+    }
+    removeFieldValidation('projectInformation.preferredResearchInstallation.preference1');
+    removeFieldValidation('projectInformation.preferredResearchInstallation.preference2');
+    removeFieldValidation('projectInformation.preferredResearchInstallation.preference3');
+    removeFieldValidation('projectInformation.rationale.context');
+    removeFieldValidation('projectInformation.rationale.objective');
+    removeFieldValidation('projectInformation.rationale.impact');
+    removeFieldValidation('projectInformation.scientificQuality.stateArt');
+    removeFieldValidation('projectInformation.scientificQuality.questionHypothesis');
+    removeFieldValidation('projectInformation.scientificQuality.approach');
+    removeFieldValidation('projectInformation.valorizationStrategy.strategy');
+
+    // participants validation
+    tnaForm.get('participants.participantFields').controls.forEach((control: any, i: number) => {
+        removeFormArrayValidation('participants.participantFields', 'phone', i)
+        removeFormArrayValidation('participants.participantFields', 'email', i)
+        removeFormArrayOrganisationValidation('organisationName', i);
+        removeFormArrayOrganisationValidation('organisationAddress', i);
+        removeFormArrayOrganisationValidation('organisationCountry', i);
+      }
+    );
+  }
+
+  onSubmit(tnaId: any, action: any): void {
+    if (action == 'submitted') {
+      this.enableValidation(this.tnaForm);
+    } else {
+      this.disableValidation(this.tnaForm);
+    }
+
     if (this.tnaForm.invalid) {
       console.log(this.tnaForm.errors);
     } else {
-      console.log(this.tnaForm.value)
-      console.log(this.tnaForm.getRawValue())
+      let formValues = this.tnaForm.getRawValue();
+      formValues['recordStatus'] = action;
 
-      if (tnaId){
-        this.apiService.editTnaProject(this.tnaForm.getRawValue(), tnaId).subscribe(
-          data => {
-            console.log(data)
-            this.openSnackbar('TNA project successfully created', 'Dismiss');
+      if (tnaId) {
+          this.apiService.editTnaProject(formValues, tnaId).subscribe({
+          next: (data) => {
+            this.openSnackbar('TNA project successfully modified', 'Dismiss');
             this.router.navigate([`/user-profile/${this.userID}`]);
           },
-          error => {
-            console.log("Submission Failed!");
+          error: (error) => {
             this.openSnackbar('Submission Failed! Contact FAANG helpdesk', 'Dismiss');
-          }
-        );
+          },
+            complete: () => {
+            }
+        });
       } else {
-        this.apiService.createTnaProject(this.tnaForm.getRawValue()).subscribe(
-          data => {
-            console.log(data)
-            this.openSnackbar('TNA project successfully created', 'Dismiss');
-            this.router.navigate([`/user-profile/${this.userID}`]);
-          },
-          error => {
-            console.log("Submission Failed!");
-            this.openSnackbar('Submission Failed! Contact FAANG helpdesk', 'Dismiss');
-          }
-        );
+        this.apiService.createTnaProject(formValues).subscribe(
+          {
+            next: (data) => {
+              this.openSnackbar('TNA project successfully created', 'Dismiss');
+              this.router.navigate([`/user-profile/${this.userID}`]);
+            },
+            error: (error) => {
+              this.openSnackbar('Submission Failed! Contact FAANG helpdesk', 'Dismiss');
+            },
+            complete: () => {
+            }
+          });
       }
     }
   }
@@ -280,7 +369,7 @@ export class TnaComponent implements OnInit {
     });
   }
 
-  private editParticipantFormGroup(participantObj : { [key: string]: any }): FormGroup {
+  private editParticipantFormGroup(participantObj: { [key: string]: any }): FormGroup {
     return new FormGroup({
       id: new FormControl({value: participantObj['id'], disabled: true}),
       firstname: new FormControl({value: participantObj['firstname'], disabled: true}, Validators.required),
@@ -289,8 +378,14 @@ export class TnaComponent implements OnInit {
       email: new FormControl({value: participantObj['email'], disabled: true}, [Validators.email]),
       organisation: new FormGroup({
         organisationName: new FormControl({value: participantObj['organisation']['organisationName'], disabled: true}),
-        organisationAddress: new FormControl({value: participantObj['organisation']['organisationAddress'], disabled: true}),
-        organisationCountry: new FormControl({value: participantObj['organisation']['organisationCountry'], disabled: true}),
+        organisationAddress: new FormControl({
+          value: participantObj['organisation']['organisationAddress'],
+          disabled: true
+        }),
+        organisationCountry: new FormControl({
+          value: participantObj['organisation']['organisationCountry'],
+          disabled: true
+        }),
       }),
     });
   }
@@ -299,24 +394,8 @@ export class TnaComponent implements OnInit {
     return (this.tnaForm.get('participants.participantFields') as FormArray).controls;
   }
 
-  getCountries() {
-    this.apiService.getCountries().subscribe(
-      {
-        next: (data) => {
-          this.countriesList = data['properties']['geographic_location']['properties']['value']['enum']
-            .filter((country: string) => country !== 'restricted access');
-        },
-        error: (err: any) => {
-          console.log(err.message);
-        },
-        complete: () => {
-        }
-      }
-    );
-  }
-
   getTnaProjects() {
-    this.apiService.getTnaProjects().subscribe(
+    this.apiService.getTnaProjects('', 0, false, 'project_title', 'asc').subscribe(
       {
         next: (data) => {
           this.tnaProjectsList = data['data'].map((entry: { [x: string]: any; }) => ({
@@ -347,7 +426,6 @@ export class TnaComponent implements OnInit {
       verticalPosition: 'top',
       duration: 2000
     });
-
     this.snackBarRef.onAction().subscribe(() => {
       this.router.navigate([`/user-profile/${this.userID}`]);
     });

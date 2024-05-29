@@ -1,5 +1,5 @@
 import {Injectable} from '@angular/core';
-import {HttpClient, HttpErrorResponse, HttpBackend, HttpHeaders} from '@angular/common/http';
+import {HttpClient, HttpErrorResponse, HttpHeaders} from '@angular/common/http';
 import {throwError} from 'rxjs';
 import {catchError, map} from 'rxjs/operators';
 import {URL} from "../auth";
@@ -14,40 +14,36 @@ export class ApiService {
     })
   };
 
-  constructor(private http: HttpClient,
-              handler: HttpBackend) {
-    // service is not intercepted by AuthInterceptor.
-    this.http = new HttpClient(handler);
+  constructor(private http: HttpClient) {}
 
-    // set authorisation token
-    const userData: string | null = sessionStorage.getItem('userData');
-    let token = '';
-    if (userData) {
-      token = JSON.parse(userData)['token'];
+  getTnaProjects(searchTerm: string, pageNumber: number, pagination: boolean, sortTerm: string, sortDirection: string) {
+    let url = `${URL}/api/v1/tna/`;
+    // defines whether the data will be paginated on the backend
+    const paginationParam = url.includes('?') ? `&pagination=${pagination}` : `?pagination=${pagination}`
+    url = url + paginationParam;
+
+    if (searchTerm){
+      const searchParam = url.includes('?') ? `&search=${searchTerm}` : `?search=${searchTerm}`
+      url = url + searchParam;
     }
-    this.httpOptions = {
-      headers: new HttpHeaders({
-        "Authorization": "Token " + token
-      })
-    };
-  }
-
-  getCountries() {
-    const url = 'https://raw.githubusercontent.com/FAANG/dcc-metadata/master/json_schema/type/samples/faang_samples_specimen.metadata_rules.json';
-    return this.http.get(url).pipe(
-      map((data: any) => {
-        return data;
-      }),
-      catchError(this.handleError),
-    );
-  }
-
-  getTnaProjects() {
-    const url = `${URL}/tna/list/`;
-    const res: { [key: string]: any } = {}
+    if (pageNumber){
+      const pageParam = url.includes('?') ? `&page=${pageNumber}` : `?page=${pageNumber}`
+      url = url + pageParam;
+    }
+    if (sortTerm){
+      const direction: '-'|'' = sortDirection === 'desc' ? '-' : '';
+      const pageParam = url.includes('?') ? `&ordering=${direction}${sortTerm}` : `?ordering=${direction}${sortTerm}`
+      url = url + pageParam;
+    }
+    let res: { [key: string]: any } = {}
     return this.http.get(url, this.httpOptions).pipe(
       map((data: any) => {
-        res['data'] = data;
+        if ('results' in data) {
+          res['data'] = data['results'];
+          res['count'] = data['count'];
+        } else{
+          res['data'] = data;
+        }
         return res;
       }),
       catchError(this.handleError),
@@ -55,7 +51,7 @@ export class ApiService {
   }
 
   getTnaProjectDetails(tnaId: string) {
-    const url = `${URL}/tna/${tnaId}`;
+    const url = `${URL}/api/v1/tna/${tnaId}/`;
     const res: { [key: string]: any } = {}
     return this.http.get(url, this.httpOptions).pipe(
       map((data: any) => {
@@ -67,7 +63,7 @@ export class ApiService {
   }
 
   getUserDetails(userId: number) {
-    const url = `${URL}/users/${userId}`;
+    const url = `${URL}/api/v1/users/${userId}/`;
     const res: { [key: string]: any } = {}
     return this.http.get(url).pipe(
       map((data: any) => {
@@ -79,7 +75,7 @@ export class ApiService {
   }
 
   createTnaProject(body: any) {
-    const url = URL + '/tna/list/';
+    const url = `${URL}/api/v1/tna/`;
     return this.http.post(url, body, this.httpOptions).pipe(
       map((data: any) => {
         return data;
@@ -89,8 +85,7 @@ export class ApiService {
   }
 
   editTnaProject(body: any, tnaId: any) {
-    console.log(body)
-    const url = URL + '/tna/' + tnaId + '/';
+    const url = `${URL}/api/v1/tna/${tnaId}/`;
     return this.http.put(url, body, this.httpOptions).pipe(
       map((data: any) => {
         return data;
