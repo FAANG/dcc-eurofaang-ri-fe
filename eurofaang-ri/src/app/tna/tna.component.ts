@@ -302,7 +302,6 @@ export class TnaComponent implements OnInit {
     if (action == 'submitted') {
       this.enableValidation(this.tnaForm);
     } else {
-      const test: any = this.tnaForm.get('projectInformation.projectTitle');
       this.disableValidation(this.tnaForm);
     }
 
