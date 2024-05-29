@@ -75,7 +75,7 @@ export class ApiService {
   }
 
   createTnaProject(body: any) {
-    const url = URL + '/api/v1/tna/';
+    const url = `${URL}/api/v1/tna/`;
     return this.http.post(url, body, this.httpOptions).pipe(
       map((data: any) => {
         return data;
