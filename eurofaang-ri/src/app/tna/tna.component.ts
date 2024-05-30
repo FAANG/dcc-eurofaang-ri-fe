@@ -432,4 +432,7 @@ export class TnaComponent implements OnInit {
   }
 
 
+  logOut() {
+    this.apiService.logOut();
+  }
 }

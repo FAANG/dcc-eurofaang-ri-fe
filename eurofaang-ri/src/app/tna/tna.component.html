@@ -1,4 +1,10 @@
 <div class="main-container">
+  <div class="logout-item">
+    <button mat-button (click)="logOut()">
+      <mat-icon>logout</mat-icon>
+      <span class="mat-button-wrapper">LogOut</span>
+    </button>
+  </div>
   <div class="containerElement">
     <div class="alert alert-danger alert-white rounded" *ngIf="!enableEdit">
       <div class="icon"><i class="fa fa-times-circle"></i></div>

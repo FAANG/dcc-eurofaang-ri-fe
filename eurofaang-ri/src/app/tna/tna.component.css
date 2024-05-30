@@ -6,9 +6,15 @@
   max-width: 900px;
 }
 
+.logout-item {
+  margin-left: auto;
+}
+
 .main-container {
   display: flex;
+  flex-direction: column;
   justify-content: center;
+  align-items: center;
 }
 
 h2 {

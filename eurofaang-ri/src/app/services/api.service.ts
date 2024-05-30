@@ -106,6 +106,7 @@ export class ApiService {
 
   logOut() {
     sessionStorage.removeItem('authToken');
+    sessionStorage.removeItem('userData');
     this.router.navigate(['login']);
   }
 
