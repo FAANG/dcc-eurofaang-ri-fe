@@ -24,6 +24,16 @@ import {ApiService} from '../services/api.service';
 import {researchInstallations} from './constants';
 import {MatSnackBar} from "@angular/material/snack-bar";
 import {countries} from '../shared/constants';
+import {
+  MatDialog,
+  MAT_DIALOG_DATA,
+  MatDialogRef,
+  MatDialogTitle,
+  MatDialogContent,
+  MatDialogActions,
+  MatDialogClose,
+} from '@angular/material/dialog';
+import { TnaDialogComponent } from './tna-dialog/tna-dialog.component';
 
 @Component({
   selector: 'app-tna',
@@ -84,7 +94,8 @@ export class TnaComponent implements OnInit {
               private router: Router,
               private route: ActivatedRoute,
               private apiService: ApiService,
-              public snackbar: MatSnackBar,) {
+              public snackbar: MatSnackBar,
+              public dialog: MatDialog) {
 
     const userData: string | null = sessionStorage.getItem('userData');
 
@@ -104,7 +115,7 @@ export class TnaComponent implements OnInit {
       projectInformation: this.formBuilder.group({
         applicationConnection: [''],
         associatedProjectTitle: [''],
-        projectTitle: [''],
+        projectTitle: ['', Validators.required],
 
         preferredResearchInstallation: this.formBuilder.group({
           preference1: [''],
@@ -272,7 +283,7 @@ export class TnaComponent implements OnInit {
       tnaForm.get('participants.participantFields').at(index).controls['organisation'].controls[fieldName].updateValueAndValidity();
     }
 
-    removeFieldValidation('projectInformation.projectTitle');
+    // removeFieldValidation('projectInformation.projectTitle');
     if (tnaForm.get('projectInformation.applicationConnection').value === 'yes') {
       removeFieldValidation('projectInformation.associatedProjectTitle');
     }
@@ -314,7 +325,7 @@ export class TnaComponent implements OnInit {
       if (tnaId) {
           this.apiService.editTnaProject(formValues, tnaId).subscribe({
           next: (data) => {
-            this.openSnackbar('TNA project successfully modified', 'Dismiss');
+            this.openSnackbar(`TNA project successfully ${action}`, 'Dismiss');
             this.router.navigate([`/user-profile/${this.userID}`]);
           },
           error: (error) => {
@@ -430,6 +441,26 @@ export class TnaComponent implements OnInit {
       this.router.navigate([`/user-profile/${this.userID}`]);
     });
   }
+
+
+  openDialog(action: string): void {
+    const dialogRef = this.dialog.open(TnaDialogComponent, {
+      height: '300px', width: '400px',
+      data: {tnaId: this.tnaId, action: action},
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      console.log('The dialog was closed--->', result);
+      if(result === 'save'){
+        this.onSubmit(this.tnaId, 'saved')
+      } else if (result === 'submit'){
+        this.onSubmit(this.tnaId, 'submitted')
+      } else if (result === 'cancel'){
+        this.router.navigate([`user-profile/${this.userID}`], {queryParams: {}, replaceUrl: true, skipLocationChange: false});
+      }
+    });
+  }
+
 
 
 }

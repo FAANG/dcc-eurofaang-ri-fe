@@ -6,6 +6,9 @@
       Please contact helpdesk if you have any query regarding this entry by sending us an email on
       <a href="mailto:faang-dcc@ebi.ac.uk?Subject=Submission%20Tool%20Downtime" target="_top">
         <span class="emailStyle">faang-dcc&#64;ebi.ac.uk</span></a>.
+      <div class="submittedText" *ngIf="tnaProjectDetails['record_status'] === 'submitted'">
+        This submission has already been submitted
+      </div>
     </div>
     <form [formGroup]="tnaForm">
       <h1 class="form-heading">TNA User Information</h1>
@@ -301,14 +304,14 @@
       <div class="flex-container formButtons">
         <ng-container *ngIf="enableEdit">
           <div class="flex-child">
-            <button mat-flat-button color="primary" type="submit" (click)="onSubmit(tnaId, 'saved')">Save</button>
+            <button mat-flat-button color="primary" type="submit" (click)="openDialog('save')">Save</button>
           </div>
           <div class="flex-child">
-            <button mat-flat-button color="primary" type="submit" (click)="onSubmit(tnaId, 'submitted')">Submit Form</button>
+            <button mat-flat-button color="primary" type="submit" (click)="openDialog('submit')">Submit</button>
           </div>
         </ng-container>
         <div class="flex-child">
-          <button mat-flat-button color="primary" routerLink="/user-profile/{{userID}}">Cancel</button>
+          <button mat-flat-button color="primary" (click)="openDialog('cancel')">Cancel</button>
         </div>
       </div>
     </form>

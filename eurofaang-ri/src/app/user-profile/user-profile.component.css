@@ -21,3 +21,12 @@ a {
 .edit-icon {
   color: steelblue;
 }
+
+.redText {
+  color: #D8524B;
+  font-weight: bold;
+}
+
+.greenText {
+  color: #A0C491;
+}
