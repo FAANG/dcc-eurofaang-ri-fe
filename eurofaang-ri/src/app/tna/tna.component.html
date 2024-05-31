@@ -31,9 +31,18 @@
       <div class="fieldsPosition">
         <div class="boldText">Additional participants</div>
         <div class="sectionInformation">If applicable, please provide for each additional participant the same
-          information
-          requested for the principal investigator
+          information requested for the principal investigator
         </div>
+<!--        <div>-->
+<!--          <mat-form-field appearance="fill">-->
+<!--            <mat-label>Select additional participants</mat-label>-->
+<!--            <mat-select formControlName="associatedProjectTitle">-->
+<!--              <mat-option *ngFor="let project of tnaProjectsList" [value]="getProjectId(project)">-->
+<!--                {{ getProjectTitle(project) }}-->
+<!--              </mat-option>-->
+<!--            </mat-select>-->
+<!--          </mat-form-field>-->
+<!--        </div>-->
         <div formGroupName="participants">
           <div formArrayName="participantFields">
             <div *ngFor="let filterField of getFormControls(); let i = index"

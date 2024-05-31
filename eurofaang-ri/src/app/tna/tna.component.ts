@@ -176,6 +176,10 @@ export class TnaComponent implements OnInit {
   buildFormValueObj(tnaProjectDetails: any) {
     this.enableEdit = parseInt(tnaProjectDetails['tna_owner']) === this.userID
       && tnaProjectDetails['record_status'] != 'submitted';
+    console.log(parseInt(tnaProjectDetails['tna_owner']) === this.userID)
+    console.log(tnaProjectDetails['record_status'])
+    console.log(this.enableEdit)
+
     const participantFields = [];
     const participantsFormArray = this.tnaForm.get('participants.participantFields') as FormArray;
     for (let obj of tnaProjectDetails['additional_participants']) {
