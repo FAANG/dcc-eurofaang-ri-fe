@@ -82,10 +82,6 @@ export class UserProfileComponent implements OnInit, AfterViewInit {
     this.dataSource.sort = this.sort;
   }
 
-  logOut() {
-    this.apiService.logOut();
-  }
-
   getTnaProjects(searchTerm: string, pageNumber: number, sortTerm: string, sortDirection: string) {
     this.apiService.getTnaProjects(searchTerm, pageNumber, true, sortTerm, sortDirection).subscribe(
       {
