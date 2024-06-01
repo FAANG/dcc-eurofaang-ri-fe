@@ -5,12 +5,12 @@ import {MatIcon} from "@angular/material/icon";
 import {ApiService} from '../services/api.service';
 import {UserProfileService} from "../services/user-profile.service";
 import {ActivatedRoute, Router} from "@angular/router";
-import {Location} from "@angular/common";
+import {Location, NgIf} from "@angular/common";
 
 @Component({
   selector: 'app-header',
   standalone: true,
-    imports: [MatToolbarModule, MatButton, MatIcon],
+  imports: [MatToolbarModule, MatButton, MatIcon, NgIf],
   providers: [ApiService],
   templateUrl: './header.component.html',
   styleUrl: './header.component.css'
@@ -20,5 +20,9 @@ export class HeaderComponent {
 
   logOut() {
     this.apiService.logOut();
+  }
+
+  isLoggedIn() {
+    return this.apiService.isLoggedIn();
   }
 }

@@ -105,9 +105,12 @@ export class ApiService {
   }
 
   logOut() {
-    sessionStorage.removeItem('authToken');
     sessionStorage.removeItem('userData');
     this.router.navigate(['login']);
+  }
+
+  isLoggedIn(): boolean {
+    return !!sessionStorage.getItem('userData');
   }
 
 }

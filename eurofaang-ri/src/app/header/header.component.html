@@ -1,7 +1,7 @@
 <mat-toolbar>
   <span>EuroFAANG Research Infrastructure portal</span>
   <span class="spacer"></span>
-  <div class="logout-item">
+  <div class="logout-item" *ngIf="isLoggedIn()">
     <button mat-button (click)="logOut()">
       <mat-icon>logout</mat-icon>
       <span class="mat-button-wrapper">LogOut</span>
