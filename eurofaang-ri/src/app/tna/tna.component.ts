@@ -431,5 +431,4 @@ export class TnaComponent implements OnInit {
     });
   }
 
-
 }
