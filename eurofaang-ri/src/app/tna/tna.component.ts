@@ -448,13 +448,19 @@ export class TnaComponent implements OnInit {
 
 
   openDialog(action: string): void {
+    // no need to display modal box if project is already submitted
+    if (action === 'cancel' && !this.enableEdit){
+      this.router.navigate([`user-profile/${this.userID}`], {queryParams: {}, replaceUrl: true, skipLocationChange: false});
+      return;
+    }
+
+
     const dialogRef = this.dialog.open(TnaDialogComponent, {
       height: '300px', width: '400px',
       data: {tnaId: this.tnaId, action: action},
     });
 
     dialogRef.afterClosed().subscribe(result => {
-      console.log('The dialog was closed--->', result);
       if(result === 'save'){
         this.onSubmit(this.tnaId, 'saved')
       } else if (result === 'submit'){
@@ -464,6 +470,7 @@ export class TnaComponent implements OnInit {
       }
     });
   }
+
 
 
 
