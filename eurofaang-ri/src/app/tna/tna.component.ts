@@ -1,6 +1,14 @@
 import {Component, OnInit} from '@angular/core';
 import {MatCard, MatCardContent, MatCardHeader, MatCardSubtitle, MatCardTitle} from "@angular/material/card";
-import {FormArray, FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators} from "@angular/forms";
+import {
+  FormArray,
+  FormBuilder,
+  FormControl,
+  FormGroup,
+  FormsModule,
+  ReactiveFormsModule,
+  Validators
+} from "@angular/forms";
 import {MatList, MatListItem} from "@angular/material/list";
 import {MatButton, MatButtonModule} from "@angular/material/button";
 import {
@@ -16,7 +24,7 @@ import {NgForOf, NgIf} from "@angular/common";
 import {ActivatedRoute, Router, RouterLink, Params} from "@angular/router";
 import {MatFormField, MatLabel} from "@angular/material/form-field";
 import {MatInput, MatInputModule} from "@angular/material/input";
-import {MatRadioButton, MatRadioGroup} from "@angular/material/radio";
+import {MatRadioButton, MatRadioChange, MatRadioGroup} from "@angular/material/radio";
 import {MatOption, MatSelect} from "@angular/material/select";
 import {CommonModule} from '@angular/common';
 import {MatIcon} from "@angular/material/icon";
@@ -70,7 +78,8 @@ import { TnaDialogComponent } from './tna-dialog/tna-dialog.component';
     MatOption,
     NgForOf,
     CommonModule,
-    MatIcon
+    MatIcon,
+    FormsModule
   ],
   providers: [ApiService],
   templateUrl: './tna.component.html',
@@ -83,12 +92,14 @@ export class TnaComponent implements OnInit {
   thirdPreferences: string[] = researchInstallations;
   countriesList: string[] = [];
   tnaProjectsList: string[] = [];
+  existingAddParticipantsList: string[] = [];
   userID: number = 0;
   userFullName: string = '';
   snackBarRef: any;
   tnaId: string = '';
   tnaProjectDetails: any;
   enableEdit: boolean = true;
+  participant_action: {[index: string]:any}= {};
 
   constructor(private formBuilder: FormBuilder,
               private router: Router,
@@ -110,7 +121,7 @@ export class TnaComponent implements OnInit {
         principalInvestigatorId: [this.userID],
       }),
       participants: this.formBuilder.group({
-        participantFields: this.formBuilder.array(this.router.url.startsWith("/tna/edit") ? [] : [this.createParticipantFormGroup()])
+        participantFields: this.formBuilder.array(this.router.url.startsWith("/tna/edit") ? [] : [this.createParticipantFormGroup('existing')])
       }),
       projectInformation: this.formBuilder.group({
         applicationConnection: [''],
@@ -171,6 +182,8 @@ export class TnaComponent implements OnInit {
     }
     this.countriesList = countries;
     this.getTnaProjects();
+    this.getExistingParticipants();
+    this.participant_action[0] = 'existing';
   }
 
   buildFormValueObj(tnaProjectDetails: any) {
@@ -324,6 +337,7 @@ export class TnaComponent implements OnInit {
       console.log(this.tnaForm.errors);
     } else {
       let formValues = this.tnaForm.getRawValue();
+      console.log("formValues: ", formValues)
       formValues['recordStatus'] = action;
 
       if (tnaId) {
@@ -357,7 +371,9 @@ export class TnaComponent implements OnInit {
 
   public addFilterFormGroup() {
     const participants = this.tnaForm.get('participants.participantFields') as FormArray;
-    participants.push(this.createParticipantFormGroup());
+    participants.push(this.createParticipantFormGroup('existing'));
+    const formControlsLength = Object.keys(this.participant_action).length;
+    this.participant_action[formControlsLength] = 'existing';
   }
 
   public removeFilter(i: number) {
@@ -367,21 +383,36 @@ export class TnaComponent implements OnInit {
     } else {
       participants.reset();
     }
+    // we need to update keys the object to be continuous
+    delete this.participant_action[i];
+    Object.entries(this.participant_action).forEach(([key, value], index) => {
+      console.log(`${index}: ${key} = ${value}`);
+      this.participant_action[index] = value;
+    });
   }
 
-  private createParticipantFormGroup(): FormGroup {
-    return new FormGroup({
-      id: new FormControl({value: null, disabled: true}),
-      firstname: new FormControl('', Validators.required),
-      lastname: new FormControl('', Validators.required),
-      phone: new FormControl('', [Validators.pattern("^[0-9]*$")]),
-      email: new FormControl('', [Validators.email]),
-      organisation: new FormGroup({
-        organisationName: new FormControl(''),
-        organisationAddress: new FormControl(''),
-        organisationCountry: new FormControl(''),
-      }),
-    });
+  private createParticipantFormGroup(action: string): FormGroup {
+    // this.participant_action.push(action);
+    if (action === 'existing') {
+      console.log("existing")
+      return new FormGroup({
+        existingParticipants: new FormControl(''),
+      });
+    } else {
+      console.log("NEW")
+      return new FormGroup({
+        id: new FormControl({value: null, disabled: true}),
+        firstname: new FormControl('', Validators.required),
+        lastname: new FormControl('', Validators.required),
+        phone: new FormControl('', [Validators.pattern("^[0-9]*$")]),
+        email: new FormControl('', [Validators.email]),
+        organisation: new FormGroup({
+          organisationName: new FormControl(''),
+          organisationAddress: new FormControl(''),
+          organisationCountry: new FormControl(''),
+        }),
+      });
+    }
   }
 
   private editParticipantFormGroup(participantObj: { [key: string]: any }): FormGroup {
@@ -409,6 +440,24 @@ export class TnaComponent implements OnInit {
     return (this.tnaForm.get('participants.participantFields') as FormArray).controls;
   }
 
+  getExistingParticipants() {
+    this.apiService.getUsers('', 0, false, 'last_name', 'asc').subscribe(
+      {
+        next: (data) => {
+          this.existingAddParticipantsList = data['data'].map((entry: { [x: string]: any; }) => ({
+            id: Number(entry['id']),
+            name: `${entry['first_name']} ${entry['last_name']}`
+          }));
+        },
+        error: (err: any) => {
+          console.log(err.message);
+        },
+        complete: () => {
+        }
+      }
+    );
+  }
+
   getTnaProjects() {
     this.apiService.getTnaProjects('', 0, false, 'project_title', 'asc').subscribe(
       {
@@ -427,12 +476,17 @@ export class TnaComponent implements OnInit {
     );
   }
 
-  getProjectId(project: any) {
-    return project['id'] ? project['id'] : 0;
+  getId(obj: any) {
+    return obj['id'] ? obj['id'] : 0;
   }
 
   getProjectTitle(project: any) {
-    return project['title'] ? project['title'] : '**missing tile**';
+    return project['title'] ? project['title'] : '**missing title**';
+  }
+
+  getUserFullName(user: any) {
+    // return `${user['first_name']} ${user['last_name']}`;
+    return user['name'] ? user['name'] : '**missing name**';
   }
 
   openSnackbar(message: string, action: string) {
@@ -446,15 +500,12 @@ export class TnaComponent implements OnInit {
     });
   }
 
-
   openDialog(action: string): void {
     // no need to display modal box if project is already submitted
     if (action === 'cancel' && !this.enableEdit){
       this.router.navigate([`user-profile/${this.userID}`], {queryParams: {}, replaceUrl: true, skipLocationChange: false});
       return;
     }
-
-
     const dialogRef = this.dialog.open(TnaDialogComponent, {
       height: '300px', width: '400px',
       data: {tnaId: this.tnaId, action: action},
@@ -471,7 +522,22 @@ export class TnaComponent implements OnInit {
     });
   }
 
+  radioChange($event: MatRadioChange, index: number) {
+    // console.log($event.source.name, $event.value, index);
+    console.log(index);
 
+    const participants = this.tnaForm.get('participants.participantFields') as FormArray;
+    console.log(this.tnaForm.get('participants'))
+    console.log(participants)
+    // console.log(participants.controls[index])
+    participants.controls[index] = this.createParticipantFormGroup($event.value);
+    console.log(participants)
+    // console.log(participants.controls[index])
+
+
+
+    this.participant_action[`${index}`] = $event.value;
+  }
 
 
 }

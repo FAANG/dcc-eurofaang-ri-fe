@@ -33,21 +33,35 @@
         <div class="sectionInformation">If applicable, please provide for each additional participant the same
           information requested for the principal investigator
         </div>
-<!--        <div>-->
-<!--          <mat-form-field appearance="fill">-->
-<!--            <mat-label>Select additional participants</mat-label>-->
-<!--            <mat-select formControlName="associatedProjectTitle">-->
-<!--              <mat-option *ngFor="let project of tnaProjectsList" [value]="getProjectId(project)">-->
-<!--                {{ getProjectTitle(project) }}-->
-<!--              </mat-option>-->
-<!--            </mat-select>-->
-<!--          </mat-form-field>-->
-<!--        </div>-->
+
         <div formGroupName="participants">
-          <div formArrayName="participantFields">
+          <div formArrayName="participantFields"> {{participant_action|json}}
             <div *ngFor="let filterField of getFormControls(); let i = index"
                  [formGroupName]="i">
-              <div class="participantForm">
+
+              <mat-radio-group aria-label="Select an option" (change)="radioChange($event, i)" >
+                <mat-radio-button value="existing" [checked]="participant_action[i] === 'existing'">Select additional participants</mat-radio-button> <!--[checked]="participant_action === 'existing'" -->
+                <mat-radio-button value="new" [checked]="participant_action[i] === 'new'">Create new participant</mat-radio-button> <!-- [checked]="participant_action === 'new'" -->
+              </mat-radio-group>
+
+              <div *ngIf="participant_action[i] === 'existing'">
+                <mat-form-field appearance="fill">
+                  <mat-label>Select additional participants</mat-label>
+                  <mat-select formControlName="existingParticipants">
+                    <mat-option *ngFor="let participant of existingAddParticipantsList" [value]="getId(participant)">
+                      {{ getUserFullName(participant) }}
+                    </mat-option>
+                  </mat-select>
+                </mat-form-field>
+                <div class="removeButton" *ngIf="enableEdit">
+                  <button mat-flat-button (click)="removeFilter(i)" color="warn">
+                    Remove participant
+                  </button>
+                </div>
+              </div>
+
+
+              <div class="participantForm" *ngIf="participant_action[i] === 'new'">
                 <mat-form-field appearance="fill">
                   <mat-label>First name</mat-label>
                   <input matInput formControlName="firstname">
@@ -136,7 +150,7 @@
                 <mat-form-field appearance="fill">
                   <mat-label>Associated application</mat-label>
                   <mat-select formControlName="associatedProjectTitle">
-                    <mat-option *ngFor="let project of tnaProjectsList" [value]="getProjectId(project)">
+                    <mat-option *ngFor="let project of tnaProjectsList" [value]="getId(project)">
                       {{ getProjectTitle(project) }}
                     </mat-option>
                   </mat-select>

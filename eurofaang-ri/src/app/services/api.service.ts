@@ -62,6 +62,42 @@ export class ApiService {
     );
   }
 
+
+  getUsers(searchTerm: string, pageNumber: number, pagination: boolean, sortTerm: string, sortDirection: string) {
+    let url = `${URL}/api/v1/users/`;
+    // defines whether the data will be paginated on the backend
+    const paginationParam = url.includes('?') ? `&pagination=${pagination}` : `?pagination=${pagination}`
+    url = url + paginationParam;
+
+    if (searchTerm){
+      const searchParam = url.includes('?') ? `&search=${searchTerm}` : `?search=${searchTerm}`
+      url = url + searchParam;
+    }
+    if (pageNumber){
+      const pageParam = url.includes('?') ? `&page=${pageNumber}` : `?page=${pageNumber}`
+      url = url + pageParam;
+    }
+    if (sortTerm){
+      const direction: '-'|'' = sortDirection === 'desc' ? '-' : '';
+      const pageParam = url.includes('?') ? `&ordering=${direction}${sortTerm}` : `?ordering=${direction}${sortTerm}`
+      url = url + pageParam;
+    }
+    let res: { [key: string]: any } = {}
+    return this.http.get(url, this.httpOptions).pipe(
+      map((data: any) => {
+        if ('results' in data) {
+          res['data'] = data['results'];
+          res['count'] = data['count'];
+        } else{
+          res['data'] = data;
+        }
+        return res;
+      }),
+      catchError(this.handleError),
+    );
+  }
+
+
   getUserDetails(userId: number) {
     const url = `${URL}/api/v1/users/${userId}/`;
     const res: { [key: string]: any } = {}
