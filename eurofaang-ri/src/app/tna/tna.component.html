@@ -35,11 +35,9 @@
         </div>
 
         <div formGroupName="participants">
-          <div formArrayName="participantFields"> {{participant_action|json}}
-            <div *ngFor="let filterField of getFormControls(); let i = index"
-                 [formGroupName]="i">
-
-              <mat-radio-group aria-label="Select an option" (change)="radioChange($event, i)" >
+          <div formArrayName="participantFields">
+            <div *ngFor="let filterField of getFormControls(); let i = index" [formGroupName]="i">
+              <mat-radio-group aria-label="Select an option" (change)="radioChange($event, i)" *ngIf="enabledMode(filterField)">
                 <mat-radio-button value="existing" [checked]="participant_action[i] === 'existing'">Select additional participants</mat-radio-button> <!--[checked]="participant_action === 'existing'" -->
                 <mat-radio-button value="new" [checked]="participant_action[i] === 'new'">Create new participant</mat-radio-button> <!-- [checked]="participant_action === 'new'" -->
               </mat-radio-group>
@@ -61,7 +59,7 @@
               </div>
 
 
-              <div class="participantForm" *ngIf="participant_action[i] === 'new'">
+              <div class="participantForm" *ngIf="participant_action[i] === 'new' || !enabledMode(filterField)">
                 <mat-form-field appearance="fill">
                   <mat-label>First name</mat-label>
                   <input matInput formControlName="firstname">

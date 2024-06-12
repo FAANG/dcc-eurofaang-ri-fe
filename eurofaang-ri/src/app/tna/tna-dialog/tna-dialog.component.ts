@@ -44,8 +44,6 @@ export class TnaDialogComponent {
     }else{
       return null;
     }
-
-    return action === 'save' ? 'Saving TNA project details' : 'Submitting TNA project details';
   }
 
   displayContent(action: string){
