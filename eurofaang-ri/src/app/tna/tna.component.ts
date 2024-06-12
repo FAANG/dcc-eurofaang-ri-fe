@@ -273,11 +273,16 @@ export class TnaComponent implements OnInit {
 
     // participants validation
     tnaForm.get('participants.participantFields').controls.forEach((control: any, i: number) => {
-        setFormArrayValidation('participants.participantFields', 'phone', i)
-        setFormArrayValidation('participants.participantFields', 'email', i)
-        setFormArrayOrganisationValidation('organisationName', i);
-        setFormArrayOrganisationValidation('organisationAddress', i);
-        setFormArrayOrganisationValidation('organisationCountry', i);
+        console.log(control.controls)
+        if ('existingParticipants' in control.controls) {
+          setFormArrayValidation('participants.participantFields', 'existingParticipants', i)
+        } else {
+          setFormArrayValidation('participants.participantFields', 'phone', i)
+          setFormArrayValidation('participants.participantFields', 'email', i)
+          setFormArrayOrganisationValidation('organisationName', i);
+          setFormArrayOrganisationValidation('organisationAddress', i);
+          setFormArrayOrganisationValidation('organisationCountry', i);
+        }
       }
     );
   }
@@ -313,18 +318,15 @@ export class TnaComponent implements OnInit {
 
     // participants validation
     tnaForm.get('participants.participantFields').controls.forEach((control: any, i: number) => {
-      // console.log(control['controls'])
-        if ("existingParticipants" in control['controls']){
-          //TODO remove validation
-
-        }else {
+        if ('existingParticipants' in control.controls) {
+          removeFormArrayValidation('participants.participantFields', 'existingParticipants', i)
+        } else {
           removeFormArrayValidation('participants.participantFields', 'phone', i)
           removeFormArrayValidation('participants.participantFields', 'email', i)
           removeFormArrayOrganisationValidation('organisationName', i);
           removeFormArrayOrganisationValidation('organisationAddress', i);
           removeFormArrayOrganisationValidation('organisationCountry', i);
         }
-
       }
     );
   }
