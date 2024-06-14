@@ -185,6 +185,7 @@ export class TnaComponent implements OnInit {
   }
 
   buildFormValueObj(tnaProjectDetails: any) {
+    console.log(tnaProjectDetails)
     this.enableEdit = parseInt(tnaProjectDetails['tna_owner']) === this.userID
       && tnaProjectDetails['record_status'] != 'submitted';
     const participantFields = [];
@@ -215,7 +216,8 @@ export class TnaComponent implements OnInit {
       },
       'projectInformation': {
         'applicationConnection': tnaProjectDetails['associated_application'],
-        'associatedProjectTitle': tnaProjectDetails['associated_application_title'],
+        'associatedProjectTitle': tnaProjectDetails['associated_application_title'] ?
+          tnaProjectDetails['associated_application_title']['id'] : '',
         'projectTitle': tnaProjectDetails['project_title'],
         'preferredResearchInstallation': {
           'preference1': tnaProjectDetails['research_installation_1'],
