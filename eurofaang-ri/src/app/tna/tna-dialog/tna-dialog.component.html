@@ -1,0 +1,9 @@
+<div mat-dialog-content>
+  <p class="mat-dialog-title-font">{{ displayTitle(userAction) }}</p>
+  <p [innerHTML]="displayContent(userAction)"></p>
+
+  <div mat-dialog-actions class="dialogButtons">
+    <button mat-button color="primary" (click)="onCancelDialog()">Close</button>
+    <button mat-button color="primary" (click)="onSubmit()" cdkFocusInitial>{{ userAction | titlecase }} TNA details</button>
+  </div>
+</div>

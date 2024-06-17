@@ -4,6 +4,7 @@ import {UserProfileComponent} from "./user-profile/user-profile.component";
 import {authGuard} from "./auth.guard";
 import {TnaComponent} from "./tna/tna.component";
 import {PageNotFoundComponent} from './page-not-found/page-not-found.component'
+import {TnaViewComponent} from "./tna/tna-view/tna-view.component";
 
 
 export const routes: Routes = [
@@ -12,5 +13,6 @@ export const routes: Routes = [
   { path: '', redirectTo: '/login', pathMatch: 'full' },
   { path: 'tna/new', component: TnaComponent, canActivate: [authGuard],},
   { path: 'tna/edit/:id', component: TnaComponent, canActivate: [authGuard],},
+  { path: 'tna/view/:id', component: TnaViewComponent, canActivate: [authGuard],},
   { path: '**', component: PageNotFoundComponent },
 ];

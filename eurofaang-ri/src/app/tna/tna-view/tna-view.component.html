@@ -1,0 +1,80 @@
+<div class="main-container">
+  <div class="containerElement">
+    <h1 class="section-heading">TNA User Information</h1>
+    <hr/>
+    <div class="piClass" *ngIf="userFullName.trim().length > 0">
+      <div class="boldText">Principal Investigator: {{ userFullName }}</div>
+    </div>
+
+    <div class="additionalParticipantSection">
+      <div class="boldText">Additional participants</div>
+      <div *ngIf="participants.length > 0">
+        <div *ngFor="let participant of tnaProjectDetails['additional_participants']">
+          <div class="participantContainer">
+            <dl>
+              <dt>Name</dt>
+              <dd>{{ participant['first_name'] }} {{ participant['last_name'] }}</dd>
+              <dt>Phone</dt>
+              <dd>{{ participant['phone_number'] }}</dd>
+              <dt>E-mail</dt>
+              <dd>{{ participant['email'] }}</dd>
+              <dt>Organisation name</dt>
+              <dd>{{ participant['organization_name'] }}</dd>
+              <dt>Organisation address</dt>
+              <dd>{{ participant['organization_address'] }}</dd>
+              <dt>Organisation country</dt>
+              <dd>{{ participant['organization_country'] }}</dd>
+            </dl>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <h1 class="section-heading">TNA Project Information</h1>
+    <hr/>
+    <dl class="projectInformationSection">
+      <ng-container *ngIf="tnaProjectDetails?.associated_application === 'yes'">
+        <dt>Associated application</dt>
+        <dd>{{ tnaProjectDetails?.associated_application_title?.project_title }}</dd>
+      </ng-container>
+
+      <dt>Project Title</dt>
+      <dd>{{ tnaProjectDetails?.project_title }}</dd>
+
+      <div class="boldText">Preferred research installation</div>
+      <dt>Preference 1</dt>
+      <dd>{{ tnaProjectDetails?.research_installation_1 }}</dd>
+      <dt>Preference 2</dt>
+      <dd>{{ tnaProjectDetails?.research_installation_2 }}</dd>
+      <dt>Preference 3</dt>
+      <dd>{{ tnaProjectDetails?.research_installation_3 }}</dd>
+
+      <div class="sectionSubHeading">Rationale</div>
+      <dt>Context</dt>
+      <dd>{{ tnaProjectDetails?.context }}</dd>
+
+      <dt>Objective(s)</dt>
+      <dd>{{ tnaProjectDetails?.objective }}</dd>
+
+      <dt>Impact</dt>
+      <dd>{{ tnaProjectDetails?.impact }}</dd>
+
+      <div class="sectionSubHeading">Scientific Quality</div>
+
+      <dt>State of the art</dt>
+      <dd> {{ tnaProjectDetails?.state_art }}</dd>
+
+      <dt>Approach</dt>
+      <dd>{{ tnaProjectDetails?.approach }}</dd>
+
+      <div class="sectionSubHeading">Valorization Strategy</div>
+      <dt>Strategy</dt>
+      <dd>{{ tnaProjectDetails?.strategy }}</dd>
+
+    </dl>
+  </div>
+</div>
+
+
+
+

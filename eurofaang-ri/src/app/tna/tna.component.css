@@ -24,7 +24,7 @@ input.ng-invalid.ng-touched {
   margin-left: 10px;
 }
 
-.form-heading {
+.section-heading {
   color: forestgreen;
   margin-top: 20px;
 }
@@ -75,7 +75,13 @@ mat-form-field {
   position: relative;
 }
 
-.bolderText{
+.submittedText{
+  font-weight: bold;
+  color: #E1756F;
+  margin-top: 10px;
+}
+
+.sectionSubHeading{
   font-weight: bold;
   font-size: 18px;
   width: 90%;
@@ -125,7 +131,7 @@ hr {
   margin-bottom: 15px;
 }
 
-.participantForm {
+.participantContainer {
   padding: 30px 10px 10px 10px;
   margin-bottom: 20px;
 }

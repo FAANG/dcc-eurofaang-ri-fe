@@ -1,0 +1,13 @@
+button:first-child {
+  margin-right: 20px;
+}
+
+.dialogButtons{
+  text-align: center;
+  margin-top: 30px;
+}
+
+.mat-dialog-title-font{
+  font-weight: bold;
+  color: #3F51B5;
+}

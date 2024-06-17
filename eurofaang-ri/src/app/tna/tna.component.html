@@ -6,6 +6,9 @@
       Please contact helpdesk if you have any query regarding this entry by sending us an email on
       <a href="mailto:faang-dcc@ebi.ac.uk?Subject=Submission%20Tool%20Downtime" target="_top">
         <span class="emailStyle">faang-dcc&#64;ebi.ac.uk</span></a>.
+      <div class="submittedText" *ngIf="tnaProjectDetails['record_status'] === 'submitted'">
+        This submission has already been submitted
+      </div>
     </div>
     <form [formGroup]="tnaForm">
       <h1 class="form-heading">TNA User Information</h1>
@@ -28,14 +31,35 @@
       <div class="fieldsPosition">
         <div class="boldText">Additional participants</div>
         <div class="sectionInformation">If applicable, please provide for each additional participant the same
-          information
-          requested for the principal investigator
+          information requested for the principal investigator
         </div>
+
         <div formGroupName="participants">
           <div formArrayName="participantFields">
-            <div *ngFor="let filterField of getFormControls(); let i = index"
-                 [formGroupName]="i">
-              <div class="participantForm">
+            <div *ngFor="let filterField of getFormControls(); let i = index" [formGroupName]="i">
+              <mat-radio-group aria-label="Select an option" (change)="radioChange($event, i)" *ngIf="enabledMode(filterField)">
+                <mat-radio-button value="existing" [checked]="participant_action[i] === 'existing'">Select additional participants</mat-radio-button> <!--[checked]="participant_action === 'existing'" -->
+                <mat-radio-button value="new" [checked]="participant_action[i] === 'new'">Create new participant</mat-radio-button> <!-- [checked]="participant_action === 'new'" -->
+              </mat-radio-group>
+
+              <div *ngIf="participant_action[i] === 'existing'">
+                <mat-form-field appearance="fill">
+                  <mat-label>Select additional participants</mat-label>
+                  <mat-select formControlName="existingParticipants">
+                    <mat-option *ngFor="let participant of existingAddParticipantsList" [value]="getId(participant)">
+                      {{ getUserFullName(participant) }}
+                    </mat-option>
+                  </mat-select>
+                </mat-form-field>
+                <div class="removeButton" *ngIf="enableEdit">
+                  <button mat-flat-button (click)="removeFilter(i)" color="warn">
+                    Remove participant
+                  </button>
+                </div>
+              </div>
+
+
+              <div class="participantForm" *ngIf="participant_action[i] === 'new' || !enabledMode(filterField)">
                 <mat-form-field appearance="fill">
                   <mat-label>First name</mat-label>
                   <input matInput formControlName="firstname">
@@ -124,7 +148,7 @@
                 <mat-form-field appearance="fill">
                   <mat-label>Associated application</mat-label>
                   <mat-select formControlName="associatedProjectTitle">
-                    <mat-option *ngFor="let project of tnaProjectsList" [value]="getProjectId(project)">
+                    <mat-option *ngFor="let project of tnaProjectsList" [value]="getId(project)">
                       {{ getProjectTitle(project) }}
                     </mat-option>
                   </mat-select>
@@ -301,14 +325,14 @@
       <div class="flex-container formButtons">
         <ng-container *ngIf="enableEdit">
           <div class="flex-child">
-            <button mat-flat-button color="primary" type="submit" (click)="onSubmit(tnaId, 'saved')">Save</button>
+            <button mat-flat-button color="primary" type="submit" (click)="openDialog('save')">Save</button>
           </div>
           <div class="flex-child">
-            <button mat-flat-button color="primary" type="submit" (click)="onSubmit(tnaId, 'submitted')">Submit Form</button>
+            <button mat-flat-button color="primary" type="submit" (click)="openDialog('submit')">Submit</button>
           </div>
         </ng-container>
         <div class="flex-child">
-          <button mat-flat-button color="primary" routerLink="/user-profile/{{userID}}">Cancel</button>
+          <button mat-flat-button color="primary" (click)="openDialog('cancel')">Cancel</button>
         </div>
       </div>
     </form>

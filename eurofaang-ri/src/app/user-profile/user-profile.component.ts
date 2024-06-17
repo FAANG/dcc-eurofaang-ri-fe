@@ -25,6 +25,7 @@ export interface TnaDisplayInterface {
   pi: string;
   connected: string;
   tnaOwner: number;
+  status: string;
   enableEdit: boolean;
 }
 
@@ -40,7 +41,7 @@ export interface TnaDisplayInterface {
 })
 export class UserProfileComponent implements OnInit, AfterViewInit {
   userProfile: UserProfile | null = null;
-  displayedColumns: string[] = ['id', 'title', 'pi', 'connected', 'actions'];
+  displayedColumns: string[] = ['id', 'title', 'pi', 'connected', 'status', 'actions'];
   projectsList: TnaDisplayInterface[] = [];
   timer: any;
   totalHits = 0;
@@ -73,7 +74,7 @@ export class UserProfileComponent implements OnInit, AfterViewInit {
     });
     this.sort.active = 'id';
     this.sort.direction = 'asc';
-    this.getTnaProjects('', 0, 'id', 'asc');
+    this.getTnaProjects('', 0, true, 'id', 'asc');
 
   }
 
@@ -82,7 +83,7 @@ export class UserProfileComponent implements OnInit, AfterViewInit {
     this.dataSource.sort = this.sort;
   }
 
-  getTnaProjects(searchTerm: string, pageNumber: number, sortTerm: string, sortDirection: string) {
+  getTnaProjects(searchTerm: string, pageNumber: number, pagination: boolean, sortTerm: string, sortDirection: string) {
     this.apiService.getTnaProjects(searchTerm, pageNumber, true, sortTerm, sortDirection).subscribe(
       {
         next: (data) => {
@@ -93,9 +94,12 @@ export class UserProfileComponent implements OnInit, AfterViewInit {
             connected: entry['associated_application'],
             connectedProject: entry['associated_application_title'],
             tnaOwner: parseInt(entry['tna_owner']),
-            enableEdit: this.userProfile ? parseInt(entry['tna_owner']) === parseInt(this.userProfile['id']) : false,
+            status: entry['record_status'],
+            enableEdit: this.userProfile ? parseInt(entry['tna_owner']) === parseInt(this.userProfile['id'])
+              && entry['record_status'] != 'submitted' : false,
           } as TnaDisplayInterface));
-          this.dataSource = new MatTableDataSource<any>(this.projectsList);
+          // this.dataSource = new MatTableDataSource<any>(this.projectsList);
+          this.dataSource.data = this.projectsList;
           this.dataSource.sort = this.sort;
           this.totalHits = data['count'];
         },
@@ -103,7 +107,7 @@ export class UserProfileComponent implements OnInit, AfterViewInit {
           console.log(err.message);
         },
         complete: () => {
-          console.log(this.paginator)
+
         }
       }
     );
@@ -118,37 +122,11 @@ export class UserProfileComponent implements OnInit, AfterViewInit {
   }
 
   applySearchFilter(searchTerm: string) {
-    this.apiService.getTnaProjects(searchTerm, 1, true, 'id', 'asc').subscribe(
-      {
-        next: (data) => {
-          this.projectsList = data['data'].map((entry: { [x: string]: any; }) => ({
-            id: entry['id'],
-            title: entry['project_title'],
-            pi: entry['principal_investigator']['first_name'] + " " + entry['principal_investigator']['last_name'],
-            connected: entry['associated_application'],
-            connectedProject: entry['associated_application_title'],
-            tnaOwner: parseInt(entry['tna_owner']),
-            enableEdit: this.userProfile ? parseInt(entry['tna_owner']) === parseInt(this.userProfile['id']) : false,
-          } as TnaDisplayInterface));
-          this.dataSource.data = this.projectsList;
-          setTimeout(() => {
-            this.dataSource.paginator = this.paginator;
-            this.dataSource.sort = this.sort;
-            // this.paginator.pageIndex = 0;
-            this.totalHits = data['count'];
-          }, 50);
-        },
-        error: (err: any) => {
-          console.log(err.message);
-        },
-        complete: () => {
-        }
-      }
-    );
+    this.getTnaProjects(searchTerm, 1, true, 'id', 'asc');
   }
 
   customSort(event: any) {
-    this.getTnaProjects(this.currentSearchTerm, 1, this.getApiTerm(event.active), event.direction)
+    this.getTnaProjects(this.currentSearchTerm, 1, true, this.getApiTerm(event.active), event.direction)
   }
 
   getApiTerm(term: string) {
@@ -160,7 +138,7 @@ export class UserProfileComponent implements OnInit, AfterViewInit {
 
   onPageChange(event: any) {
     const currentPage = +event.pageIndex + 1;
-    this.getTnaProjects(this.currentSearchTerm, currentPage, this.getApiTerm(this.sort.active), this.sort.direction)
+    this.getTnaProjects(this.currentSearchTerm, currentPage, true, this.getApiTerm(this.sort.active), this.sort.direction)
   }
 }
 
