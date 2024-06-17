@@ -185,7 +185,6 @@ export class TnaComponent implements OnInit {
   }
 
   buildFormValueObj(tnaProjectDetails: any) {
-    console.log(tnaProjectDetails)
     this.enableEdit = parseInt(tnaProjectDetails['tna_owner']) === this.userID
       && tnaProjectDetails['record_status'] != 'submitted';
     const participantFields = [];
@@ -275,7 +274,6 @@ export class TnaComponent implements OnInit {
 
     // participants validation
     tnaForm.get('participants.participantFields').controls.forEach((control: any, i: number) => {
-        console.log(control.controls)
         if ('existingParticipants' in control.controls) {
           setFormArrayValidation('participants.participantFields', 'existingParticipants', i)
         } else {
@@ -344,7 +342,6 @@ export class TnaComponent implements OnInit {
       console.log(this.tnaForm.errors);
     } else {
       let formValues = this.tnaForm.getRawValue();
-      // console.log("formValues: ", formValues)
       formValues['recordStatus'] = action;
 
       if (tnaId) {

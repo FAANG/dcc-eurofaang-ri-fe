@@ -106,7 +106,7 @@ export class UserProfileComponent implements OnInit, AfterViewInit {
           console.log(err.message);
         },
         complete: () => {
-          console.log(this.paginator)
+
         }
       }
     );

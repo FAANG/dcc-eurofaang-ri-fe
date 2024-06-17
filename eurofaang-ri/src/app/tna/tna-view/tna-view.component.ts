@@ -65,7 +65,6 @@ export class TnaViewComponent implements OnInit {
               if ('additional_participants' in this.tnaProjectDetails){
                 this.participants = this.tnaProjectDetails['additional_participants']
               }
-              console.log(this.tnaProjectDetails)
             }
           },
           error: (err: any) => {
