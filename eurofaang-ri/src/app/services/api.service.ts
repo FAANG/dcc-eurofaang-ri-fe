@@ -3,6 +3,7 @@ import {HttpClient, HttpErrorResponse, HttpHeaders} from '@angular/common/http';
 import {throwError} from 'rxjs';
 import {catchError, map} from 'rxjs/operators';
 import {URL} from "../auth";
+import {Router} from "@angular/router";
 
 
 @Injectable({
@@ -14,7 +15,7 @@ export class ApiService {
     })
   };
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, private router: Router) {}
 
   getTnaProjects(searchTerm: string, pageNumber: number, pagination: boolean, sortTerm: string, sortDirection: string) {
     let url = `${URL}/api/v1/tna/`;
@@ -137,6 +138,15 @@ export class ApiService {
       console.error(error);
     }
     return throwError(() => error);
+  }
+
+  logOut() {
+    sessionStorage.removeItem('userData');
+    this.router.navigate(['login']);
+  }
+
+  isLoggedIn(): boolean {
+    return !!sessionStorage.getItem('userData');
   }
 
 }
