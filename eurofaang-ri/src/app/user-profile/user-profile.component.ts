@@ -1,7 +1,7 @@
 import {Component, OnInit, AfterViewInit, ViewChild} from '@angular/core';
 import {UserProfile} from "../user-profile";
 import {UserProfileService} from "../services/user-profile.service";
-import {ActivatedRoute, Router, RouterLink} from "@angular/router";
+import {ActivatedRoute, Params, Router, RouterLink} from "@angular/router";
 import {MatCardModule} from "@angular/material/card";
 import {CommonModule} from "@angular/common";
 import {MatButtonModule} from "@angular/material/button";
@@ -15,7 +15,7 @@ import {MatInputModule} from '@angular/material/input';
 import {MatPaginator} from "@angular/material/paginator";
 import {MatPaginatorModule} from '@angular/material/paginator';
 import {Location} from '@angular/common';
-import {MatSort, MatSortModule} from '@angular/material/sort';
+import {MatSort, MatSortable, MatSortModule} from '@angular/material/sort';
 import {MatIcon} from "@angular/material/icon";
 
 
@@ -47,8 +47,12 @@ export class UserProfileComponent implements OnInit, AfterViewInit {
   totalHits = 0;
   urlTree: string = '';
   location: Location;
+
   queryParams: any = {};
   currentSearchTerm: string = '';
+  sortTerm: string = '';
+  sortDirection: string = '';
+
   dataSource = new MatTableDataSource<any>();
   @ViewChild(MatPaginator) paginator: MatPaginator = <MatPaginator>{};
   @ViewChild(MatSort) sort: MatSort = <MatSort>{};
@@ -72,9 +76,26 @@ export class UserProfileComponent implements OnInit, AfterViewInit {
         console.log(error);
       }
     });
-    this.sort.active = 'id';
-    this.sort.direction = 'asc';
-    this.getTnaProjects('', 0, true, 'id', 'asc');
+    // this.sort.active = 'id';
+    // this.sort.direction = 'asc';
+    // this.getTnaProjects('', 0, true, 'id', 'asc');
+
+    this.activatedRoute.queryParams.subscribe((params: Params) => {
+      this.queryParams = {...params};
+      this.currentSearchTerm = params['searchTerm'];
+    });
+    this.getTnaProjects('pageInit', this.queryParams['searchTerm'], this.queryParams['page'], true, this.queryParams['sortTerm'],
+      this.queryParams['sortDirection']);
+
+
+
+
+
+
+    if (this.queryParams['sortTerm'] && this.queryParams['sortDirection']){
+      this.sortTerm = this.queryParams['sortTerm'];
+      this.sortDirection = this.queryParams['sortDirection'];
+    }
 
   }
 
@@ -83,7 +104,12 @@ export class UserProfileComponent implements OnInit, AfterViewInit {
     this.dataSource.sort = this.sort;
   }
 
-  getTnaProjects(searchTerm: string, pageNumber: number, pagination: boolean, sortTerm: string, sortDirection: string) {
+  getTnaProjects(pageEvent: string, searchTerm: string, pageNumber: number, pagination: boolean, sortTerm: string, sortDirection: string) {
+    if (!sortTerm){
+      sortTerm = "id";
+      sortDirection = "desc";
+    }
+
     this.apiService.getTnaProjects(searchTerm, pageNumber, true, sortTerm, sortDirection).subscribe(
       {
         next: (data) => {
@@ -107,13 +133,38 @@ export class UserProfileComponent implements OnInit, AfterViewInit {
           console.log(err.message);
         },
         complete: () => {
+        if (pageEvent === 'pageInit'){
+          console.log(pageEvent)
+          if (this.queryParams['page']){
+            this.resetPagination(this.queryParams['page']);
+          }
+
+          if (this.queryParams['sortTerm'] && this.sort){
+            console.log(this.sort)
+            this.sort.active = "title";
+            this.sort.direction = this.queryParams['sortDirection'] || 'asc';
+            console.log(this.sort.active + "   " + this.sort.direction)
+            // this.sort.sortChange.emit(this.sort);
+
+
+
+
+
+          }
+        }
 
         }
       }
     );
+
+
+
   }
 
   searchChanged(event: any) {
+    // reset query params before applying filter
+    this.paginator.pageIndex = 0;
+
     const searchFilterValue = (event.target as HTMLInputElement).value.trim().toLowerCase();
     if (this.timer) {
       clearTimeout(this.timer);
@@ -122,23 +173,63 @@ export class UserProfileComponent implements OnInit, AfterViewInit {
   }
 
   applySearchFilter(searchTerm: string) {
-    this.getTnaProjects(searchTerm, 1, true, 'id', 'asc');
+    this.getTnaProjects('searchEvent', searchTerm, 1, true, this.queryParams['sortTerm'],
+      this.queryParams['sortDirection']);
+    this.updateUrlParameters(searchTerm, 'searchTerm');
+    this.updateUrlParameters('', 'page');
   }
 
   customSort(event: any) {
-    this.getTnaProjects(this.currentSearchTerm, 1, true, this.getApiTerm(event.active), event.direction)
+    // reset query params before applying filter
+    this.paginator.pageIndex = 0;
+
+    this.sortTerm = this.getApiTerm(event.active);
+    this.sortDirection = event.direction;
+
+    this.getTnaProjects('sortEvent', this.currentSearchTerm, 1, true, this.sortTerm, this.sortDirection);
+    this.updateUrlParameters(this.sortTerm, 'sortTerm');
+    this.updateUrlParameters(this.sortDirection, 'sortDirection');
+    this.updateUrlParameters('', 'page');
+    console.log(this.sort)
   }
 
   getApiTerm(term: string) {
     const apiTerms: { [index: string]: any } = {
-      title: 'project_title'
+      title: 'project_title',
+      connected: 'associated_application',
+      status: 'record_status'
     }
     return apiTerms[term];
   }
 
   onPageChange(event: any) {
     const currentPage = +event.pageIndex + 1;
-    this.getTnaProjects(this.currentSearchTerm, currentPage, true, this.getApiTerm(this.sort.active), this.sort.direction)
+    this.getTnaProjects('paginationEvent', this.currentSearchTerm, currentPage, true, this.sortTerm, this.sortDirection)
+    this.updateUrlParameters(currentPage.toString(), 'page');
+  }
+
+  updateUrlParameters(value: string, parameterName: string) {
+    if (value) {
+      this.queryParams[parameterName] = value;
+    } else {
+      if (parameterName in this.queryParams) {
+        delete this.queryParams[parameterName];
+      }
+    }
+    // will not reload the page, but will update query params
+    this.router.navigate([],
+      {
+        relativeTo: this.activatedRoute,
+        queryParams: this.queryParams,
+        replaceUrl: true, skipLocationChange: false
+      });
+  }
+
+  resetPagination(pageNumber: number) {
+    pageNumber = pageNumber - 1
+    if (pageNumber != 0) {
+      this.paginator.pageIndex = pageNumber;
+    }
   }
 }
 
