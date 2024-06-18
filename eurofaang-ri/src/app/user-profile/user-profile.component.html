@@ -29,7 +29,9 @@
   <div class="item">
     <h1 class="profile-heading">
       TNA Applications
-      <button mat-flat-button color="primary" routerLink="/tna/new">Start New Application</button>
+      <button *ngIf="userProfile?.role === 'PI'" mat-flat-button color="primary" routerLink="/tna/new">
+        Start New Application
+      </button>
     </h1>
 
     <mat-form-field style="width: 100%; margin-top: 10px;">
