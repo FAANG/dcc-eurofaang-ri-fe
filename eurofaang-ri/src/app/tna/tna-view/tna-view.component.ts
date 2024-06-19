@@ -70,7 +70,7 @@ export class TnaViewComponent implements OnInit {
             }
           },
           error: (err: any) => {
-            this.router.navigate(['404']);
+            console.log(err.message);
           },
           complete: () => {
           }
