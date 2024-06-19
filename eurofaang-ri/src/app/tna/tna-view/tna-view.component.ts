@@ -40,6 +40,7 @@ export class TnaViewComponent implements OnInit {
   tnaProjectDetails: any;
   userFullName: string = '';
   participants: [] = [];
+  dataLoaded: boolean = false;
 
   constructor(private route: ActivatedRoute,
               private apiService: ApiService,
@@ -65,10 +66,11 @@ export class TnaViewComponent implements OnInit {
               if ('additional_participants' in this.tnaProjectDetails){
                 this.participants = this.tnaProjectDetails['additional_participants']
               }
+              this.dataLoaded = true;
             }
           },
           error: (err: any) => {
-            console.log(err.message);
+            this.router.navigate(['404']);
           },
           complete: () => {
           }
