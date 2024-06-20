@@ -95,7 +95,6 @@ export class TnaComponent implements OnInit {
   enableEdit: boolean = true;
   participant_action: {[index: string]:any}= {};
   pageMode: string = '';
-  participantDetailsVisibility: boolean = false;
   participantDetails: {[index: string]:any}= {}; // store selected participant details
 
   constructor(private formBuilder: FormBuilder,
@@ -352,7 +351,7 @@ export class TnaComponent implements OnInit {
           this.apiService.editTnaProject(formValues, tnaId).subscribe({
           next: (data) => {
             this.openSnackbar(`TNA project successfully ${action}`, 'Dismiss');
-            this.router.navigate([`/user-profile/${this.userID}`]);
+            this.router.navigate([`/tna/view/${tnaId}`]);
           },
           error: (error) => {
             this.openSnackbar('Submission Failed! Contact FAANG helpdesk', 'Dismiss');
@@ -546,8 +545,11 @@ export class TnaComponent implements OnInit {
     delete this.participantDetails[index];
   }
 
+  associatedProjChange(event: MatRadioChange): void {
+    this.tnaForm.get('projectInformation.associatedProjectTitle')?.setValue('abc');
+  }
+
   getParticipantDetails(event: any, index: number){
-    this.participantDetailsVisibility = true;
     this.apiService.getUserDetails(event.value).subscribe(
       {
         next: (data) => {
