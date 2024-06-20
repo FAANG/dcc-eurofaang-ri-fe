@@ -45,9 +45,7 @@ export class UserProfileComponent implements OnInit, AfterViewInit {
   projectsList: TnaDisplayInterface[] = [];
   timer: any;
   totalHits = 0;
-  urlTree: string = '';
   location: Location;
-
   queryParams: any = {};
   currentSearchTerm: string = '';
   sortTerm: string = '';
@@ -76,9 +74,6 @@ export class UserProfileComponent implements OnInit, AfterViewInit {
         console.log(error);
       }
     });
-    // this.sort.active = 'id';
-    // this.sort.direction = 'asc';
-    // this.getTnaProjects('', 0, true, 'id', 'asc');
 
     this.activatedRoute.queryParams.subscribe((params: Params) => {
       this.queryParams = {...params};
@@ -87,16 +82,10 @@ export class UserProfileComponent implements OnInit, AfterViewInit {
     this.getTnaProjects('pageInit', this.queryParams['searchTerm'], this.queryParams['page'], true, this.queryParams['sortTerm'],
       this.queryParams['sortDirection']);
 
-
-
-
-
-
     if (this.queryParams['sortTerm'] && this.queryParams['sortDirection']){
       this.sortTerm = this.queryParams['sortTerm'];
       this.sortDirection = this.queryParams['sortDirection'];
     }
-
   }
 
   ngAfterViewInit() {
@@ -105,6 +94,7 @@ export class UserProfileComponent implements OnInit, AfterViewInit {
   }
 
   getTnaProjects(pageEvent: string, searchTerm: string, pageNumber: number, pagination: boolean, sortTerm: string, sortDirection: string) {
+    // default sorting
     if (!sortTerm){
       sortTerm = "id";
       sortDirection = "desc";
@@ -138,27 +128,16 @@ export class UserProfileComponent implements OnInit, AfterViewInit {
           if (this.queryParams['page']){
             this.resetPagination(this.queryParams['page']);
           }
-
           if (this.queryParams['sortTerm'] && this.sort){
             console.log(this.sort)
-            this.sort.active = "title";
+            this.sort.active = this.getFrontendTerm(this.queryParams['sortTerm']);
             this.sort.direction = this.queryParams['sortDirection'] || 'asc';
             console.log(this.sort.active + "   " + this.sort.direction)
-            // this.sort.sortChange.emit(this.sort);
-
-
-
-
-
+            this.sort.sortChange.emit(this.sort);
           }
         }
-
         }
-      }
-    );
-
-
-
+      });
   }
 
   searchChanged(event: any) {
@@ -180,17 +159,20 @@ export class UserProfileComponent implements OnInit, AfterViewInit {
   }
 
   customSort(event: any) {
-    // reset query params before applying filter
-    this.paginator.pageIndex = 0;
-
     this.sortTerm = this.getApiTerm(event.active);
     this.sortDirection = event.direction;
-
-    this.getTnaProjects('sortEvent', this.currentSearchTerm, 1, true, this.sortTerm, this.sortDirection);
-    this.updateUrlParameters(this.sortTerm, 'sortTerm');
-    this.updateUrlParameters(this.sortDirection, 'sortDirection');
-    this.updateUrlParameters('', 'page');
-    console.log(this.sort)
+    if ('sortables' in event){
+      // on page init, event is a MatSort object
+      this.getTnaProjects('sortEvent', this.currentSearchTerm, this.queryParams['page'], true, this.sortTerm, this.sortDirection);
+    } else{
+      // start from the first page and remove page param from url
+      this.getTnaProjects('sortEvent', this.currentSearchTerm, 1, true, this.sortTerm, this.sortDirection);
+      this.paginator.pageIndex = 0;
+      this.updateUrlParameters('', 'page');
+      // update url params with new sorting values
+      this.updateUrlParameters(this.sortTerm, 'sortTerm');
+      this.updateUrlParameters(this.sortDirection, 'sortDirection');
+    }
   }
 
   getApiTerm(term: string) {
@@ -200,6 +182,15 @@ export class UserProfileComponent implements OnInit, AfterViewInit {
       status: 'record_status'
     }
     return apiTerms[term];
+  }
+
+  getFrontendTerm(term: string) {
+    const frontendTerms: { [index: string]: any } = {
+      project_title: 'title',
+      associated_application: 'connected',
+      record_status: 'status'
+    }
+    return frontendTerms[term];
   }
 
   onPageChange(event: any) {
@@ -227,7 +218,7 @@ export class UserProfileComponent implements OnInit, AfterViewInit {
 
   resetPagination(pageNumber: number) {
     pageNumber = pageNumber - 1
-    if (pageNumber != 0) {
+    if (pageNumber != 0 && this.paginator) {
       this.paginator.pageIndex = pageNumber;
     }
   }
