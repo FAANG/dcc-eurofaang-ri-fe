@@ -70,6 +70,11 @@ export class TnaViewComponent implements OnInit {
             }
           },
           error: (err: any) => {
+            if (err.status === 404) {
+              this.router.navigate(['404']);
+            } else {
+              this.router.navigate(['403']);
+            }
             console.log(err.message);
           },
           complete: () => {
@@ -77,6 +82,8 @@ export class TnaViewComponent implements OnInit {
         }
       );
 
+    } else {
+      this.router.navigate(['404']);
     }
   }
 
