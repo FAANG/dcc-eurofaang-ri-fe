@@ -546,7 +546,7 @@ export class TnaComponent implements OnInit {
   }
 
   associatedProjChange(event: MatRadioChange): void {
-    this.tnaForm.get('projectInformation.associatedProjectTitle')?.setValue('abc');
+    this.tnaForm.get('projectInformation.associatedProjectTitle')?.setValue('');
   }
 
   getParticipantDetails(event: any, index: number){

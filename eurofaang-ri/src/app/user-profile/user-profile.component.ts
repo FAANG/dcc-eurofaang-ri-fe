@@ -15,7 +15,7 @@ import {MatInputModule} from '@angular/material/input';
 import {MatPaginator} from "@angular/material/paginator";
 import {MatPaginatorModule} from '@angular/material/paginator';
 import {Location} from '@angular/common';
-import {MatSort, MatSortable, MatSortModule} from '@angular/material/sort';
+import {MatSort, MatSortModule} from '@angular/material/sort';
 import {MatIcon} from "@angular/material/icon";
 
 
