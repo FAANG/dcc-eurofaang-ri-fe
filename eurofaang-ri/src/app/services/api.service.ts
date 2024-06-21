@@ -36,6 +36,7 @@ export class ApiService {
       const pageParam = url.includes('?') ? `&ordering=${direction}${sortTerm}` : `?ordering=${direction}${sortTerm}`
       url = url + pageParam;
     }
+
     let res: { [key: string]: any } = {}
     return this.http.get(url, this.httpOptions).pipe(
       map((data: any) => {

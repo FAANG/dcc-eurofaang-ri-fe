@@ -72,7 +72,19 @@
       <dd>{{ tnaProjectDetails?.strategy }}</dd>
 
     </dl>
+
+    <div class="flex-container formButtons">
+      <ng-container *ngIf="enableEdit">
+        <div class="flex-child">
+          <button mat-flat-button color="primary" type="submit" routerLink="/tna/edit/{{tnaId}}">Edit</button>
+        </div>
+      </ng-container>
+      <div class="flex-child">
+        <button mat-flat-button color="primary" routerLink="/user-profile/{{userID}}">Cancel</button>
+      </div>
+    </div>
   </div>
+
 </div>
 
 
