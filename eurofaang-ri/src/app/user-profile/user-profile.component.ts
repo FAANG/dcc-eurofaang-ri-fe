@@ -124,15 +124,12 @@ export class UserProfileComponent implements OnInit, AfterViewInit {
         },
         complete: () => {
         if (pageEvent === 'pageInit'){
-          console.log(pageEvent)
           if (this.queryParams['page']){
             this.resetPagination(this.queryParams['page']);
           }
           if (this.queryParams['sortTerm'] && this.sort){
-            console.log(this.sort)
             this.sort.active = this.getFrontendTerm(this.queryParams['sortTerm']);
             this.sort.direction = this.queryParams['sortDirection'] || 'asc';
-            console.log(this.sort.active + "   " + this.sort.direction)
             this.sort.sortChange.emit(this.sort);
           }
         }
