@@ -17,7 +17,10 @@ export class ApiService {
 
   constructor(private http: HttpClient, private router: Router) {}
 
-  getTnaProjects(searchTerm: string, pageNumber: number, pagination: boolean, sortTerm: string, sortDirection: string) {
+  getTnaProjects(
+    searchTerm: string, pageNumber: number, pagination: boolean, sortTerm: string, sortDirection: string,
+    userId: string | null
+  ) {
     let url = `${URL}/api/v1/tna/`;
     // defines whether the data will be paginated on the backend
     const paginationParam = url.includes('?') ? `&pagination=${pagination}` : `?pagination=${pagination}`
@@ -35,6 +38,9 @@ export class ApiService {
       const direction: '-'|'' = sortDirection === 'desc' ? '-' : '';
       const pageParam = url.includes('?') ? `&ordering=${direction}${sortTerm}` : `?ordering=${direction}${sortTerm}`
       url = url + pageParam;
+    }
+    if (userId) {
+      url += `&user_id=${userId}`;
     }
     let res: { [key: string]: any } = {}
     return this.http.get(url, this.httpOptions).pipe(
@@ -141,12 +147,17 @@ export class ApiService {
   }
 
   logOut() {
-    sessionStorage.removeItem('userData');
+    if (typeof sessionStorage !== 'undefined') {
+      sessionStorage.removeItem('userData');
+    }
     this.router.navigate(['login']);
   }
 
   isLoggedIn(): boolean {
-    return !!sessionStorage.getItem('userData');
+    if (typeof sessionStorage !== 'undefined') {
+      return !!sessionStorage.getItem('userData');
+    }
+    return false;
   }
 
 }

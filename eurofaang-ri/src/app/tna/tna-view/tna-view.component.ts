@@ -48,9 +48,18 @@ export class TnaViewComponent implements OnInit {
 
   }
   ngOnInit() {
+    if (!this.apiService.isLoggedIn()) {
+      this.router.navigate(['/login']);
+      return;
+    }
+
     this.route.params.subscribe((params: Params) => {
       this.tnaId = params['id'];
+      this.loadTnaProjectDetails();
     });
+  }
+
+  loadTnaProjectDetails() {
 
     if (this.tnaId) {
 

@@ -52,6 +52,7 @@ export class UserProfileComponent implements OnInit, AfterViewInit {
   dataSource = new MatTableDataSource<any>();
   @ViewChild(MatPaginator) paginator: MatPaginator = <MatPaginator>{};
   @ViewChild(MatSort) sort: MatSort = <MatSort>{};
+  userId: string | null = '';
 
   constructor(private userProfileService: UserProfileService,
               private activatedRoute: ActivatedRoute,
@@ -63,10 +64,11 @@ export class UserProfileComponent implements OnInit, AfterViewInit {
 
 
   ngOnInit(): void {
-    const userId = this.activatedRoute.snapshot.paramMap.get('id');
-    this.userProfileService.getUserProfile(userId).subscribe({
+    this.userId = this.activatedRoute.snapshot.paramMap.get('id');
+    this.userProfileService.getUserProfile(this.userId).subscribe({
       next: (data) => {
         this.userProfile = data as UserProfile;
+        this.getTnaProjects('', 0, true, 'id', 'asc');
       },
       error: (error) => {
         console.log(error);
@@ -74,8 +76,6 @@ export class UserProfileComponent implements OnInit, AfterViewInit {
     });
     this.sort.active = 'id';
     this.sort.direction = 'asc';
-    this.getTnaProjects('', 0, true, 'id', 'asc');
-
   }
 
   ngAfterViewInit() {
@@ -83,8 +83,10 @@ export class UserProfileComponent implements OnInit, AfterViewInit {
     this.dataSource.sort = this.sort;
   }
 
-  getTnaProjects(searchTerm: string, pageNumber: number, pagination: boolean, sortTerm: string, sortDirection: string) {
-    this.apiService.getTnaProjects(searchTerm, pageNumber, true, sortTerm, sortDirection).subscribe(
+  getTnaProjects(
+    searchTerm: string, pageNumber: number, pagination: boolean, sortTerm: string, sortDirection: string
+  ) {
+    this.apiService.getTnaProjects(searchTerm, pageNumber, true, sortTerm, sortDirection, this.userId).subscribe(
       {
         next: (data) => {
           this.projectsList = data['data'].map((entry: { [x: string]: any; }) => ({

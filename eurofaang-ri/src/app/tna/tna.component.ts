@@ -473,7 +473,7 @@ export class TnaComponent implements OnInit {
   }
 
   getTnaProjects(): void {
-    this.apiService.getTnaProjects('', 0, false, 'project_title', 'asc').subscribe(
+    this.apiService.getTnaProjects('', 0, false, 'project_title', 'asc', this.userID.toString()).subscribe(
       {
         next: (data) => {
           this.tnaProjectsList = data['data'].map((entry: { [x: string]: any; }) => ({
