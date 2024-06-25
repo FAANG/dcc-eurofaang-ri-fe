@@ -45,14 +45,14 @@ export class UserProfileComponent implements OnInit, AfterViewInit {
   projectsList: TnaDisplayInterface[] = [];
   timer: any;
   totalHits = 0;
-  urlTree: string = '';
   location: Location;
-  queryParams: any = {};
   currentSearchTerm: string = '';
   dataSource = new MatTableDataSource<any>();
   @ViewChild(MatPaginator) paginator: MatPaginator = <MatPaginator>{};
   @ViewChild(MatSort) sort: MatSort = <MatSort>{};
   userId: string | null = '';
+  userAuthId: string | null = '';
+  userAuthRole: string | null = '';
 
   constructor(private userProfileService: UserProfileService,
               private activatedRoute: ActivatedRoute,
@@ -68,6 +68,8 @@ export class UserProfileComponent implements OnInit, AfterViewInit {
     this.userProfileService.getUserProfile(this.userId).subscribe({
       next: (data) => {
         this.userProfile = data as UserProfile;
+        this.userAuthId = sessionStorage.getItem('userAuthId');
+        this.userAuthRole = sessionStorage.getItem('userAuthRole');
         this.getTnaProjects('', 0, true, 'id', 'asc');
       },
       error: (error) => {
@@ -97,7 +99,7 @@ export class UserProfileComponent implements OnInit, AfterViewInit {
             connectedProject: entry['associated_application_title'],
             tnaOwner: parseInt(entry['tna_owner']),
             status: entry['record_status'],
-            enableEdit: this.userProfile ? parseInt(entry['tna_owner']) === parseInt(this.userProfile['id'])
+            enableEdit: this.userAuthRole ? parseInt(entry['tna_owner']).toString() === this.userAuthId
               && entry['record_status'] != 'submitted' : false,
           } as TnaDisplayInterface));
           // this.dataSource = new MatTableDataSource<any>(this.projectsList);

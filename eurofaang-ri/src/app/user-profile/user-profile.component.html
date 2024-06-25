@@ -29,7 +29,7 @@
   <div class="item">
     <h1 class="profile-heading">
       TNA Applications
-      <button *ngIf="userProfile?.role === 'PI'" mat-flat-button color="primary" routerLink="/tna/new">
+      <button *ngIf="userAuthRole === 'PI'" mat-flat-button color="primary" routerLink="/tna/new">
         Start New Application
       </button>
     </h1>

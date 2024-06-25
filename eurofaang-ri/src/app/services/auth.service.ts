@@ -20,5 +20,7 @@ export class AuthService {
     if (sessionStorage.getItem('userData') !== JSON.stringify(userData)) {
       sessionStorage.setItem('userData', JSON.stringify(userData));
     }
+    sessionStorage.setItem('userAuthId', userData.id.toString());
+    sessionStorage.setItem('userAuthRole', userData.role.toString());
   }
 }
