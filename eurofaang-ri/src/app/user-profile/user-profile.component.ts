@@ -1,7 +1,7 @@
 import {Component, OnInit, AfterViewInit, ViewChild} from '@angular/core';
 import {UserProfile} from "../user-profile";
 import {UserProfileService} from "../services/user-profile.service";
-import {ActivatedRoute, Router, RouterLink} from "@angular/router";
+import {ActivatedRoute, Params, Router, RouterLink} from "@angular/router";
 import {MatCardModule} from "@angular/material/card";
 import {CommonModule} from "@angular/common";
 import {MatButtonModule} from "@angular/material/button";
@@ -46,11 +46,15 @@ export class UserProfileComponent implements OnInit, AfterViewInit {
   timer: any;
   totalHits = 0;
   location: Location;
+  queryParams: any = {};
   currentSearchTerm: string = '';
+  sortTerm: string = '';
+  sortDirection: string = '';
+
   dataSource = new MatTableDataSource<any>();
   @ViewChild(MatPaginator) paginator: MatPaginator = <MatPaginator>{};
   @ViewChild(MatSort) sort: MatSort = <MatSort>{};
-  userId: string | null = '';
+  private userId: string | null = '';
 
   constructor(private userProfileService: UserProfileService,
               private activatedRoute: ActivatedRoute,
@@ -66,15 +70,24 @@ export class UserProfileComponent implements OnInit, AfterViewInit {
     this.userProfileService.getUserProfile(this.userId).subscribe({
       next: (data) => {
         this.userProfile = data as UserProfile;
-        this.getTnaProjects('', 0, true, 'id', 'asc');
       },
       error: (err) => {
         this.router.navigate([err.status]);
         console.log(err);
       }
     });
-    this.sort.active = 'id';
-    this.sort.direction = 'asc';
+
+    this.activatedRoute.queryParams.subscribe((params: Params) => {
+      this.queryParams = {...params};
+      this.currentSearchTerm = params['searchTerm'];
+    });
+    this.getTnaProjects('pageInit', this.queryParams['searchTerm'], this.queryParams['page'], true, this.queryParams['sortTerm'],
+      this.queryParams['sortDirection']);
+
+    if (this.queryParams['sortTerm'] && this.queryParams['sortDirection']){
+      this.sortTerm = this.queryParams['sortTerm'];
+      this.sortDirection = this.queryParams['sortDirection'];
+    }
   }
 
   ngAfterViewInit() {
@@ -82,9 +95,13 @@ export class UserProfileComponent implements OnInit, AfterViewInit {
     this.dataSource.sort = this.sort;
   }
 
-  getTnaProjects(
-    searchTerm: string, pageNumber: number, pagination: boolean, sortTerm: string, sortDirection: string
-  ) {
+  getTnaProjects(pageEvent: string, searchTerm: string, pageNumber: number, pagination: boolean, sortTerm: string, sortDirection: string) {
+    // default sorting
+    if (!sortTerm){
+      sortTerm = "id";
+      sortDirection = "desc";
+    }
+
     this.apiService.getTnaProjects(searchTerm, pageNumber, true, sortTerm, sortDirection, this.userId).subscribe(
       {
         next: (data) => {
@@ -108,13 +125,24 @@ export class UserProfileComponent implements OnInit, AfterViewInit {
           console.log(err.message);
         },
         complete: () => {
-
+          if (pageEvent === 'pageInit'){
+            if (this.queryParams['page']){
+              this.resetPagination(this.queryParams['page']);
+            }
+            if (this.queryParams['sortTerm'] && this.sort){
+              this.sort.active = this.getFrontendTerm(this.queryParams['sortTerm']);
+              this.sort.direction = this.queryParams['sortDirection'] || 'asc';
+              this.sort.sortChange.emit(this.sort);
+            }
+          }
         }
-      }
-    );
+      });
   }
 
   searchChanged(event: any) {
+    // reset query params before applying filter
+    this.paginator.pageIndex = 0;
+
     const searchFilterValue = (event.target as HTMLInputElement).value.trim().toLowerCase();
     if (this.timer) {
       clearTimeout(this.timer);
@@ -123,26 +151,74 @@ export class UserProfileComponent implements OnInit, AfterViewInit {
   }
 
   applySearchFilter(searchTerm: string) {
-    this.getTnaProjects(searchTerm, 1, true, 'id', 'asc');
+    this.getTnaProjects('searchEvent', searchTerm, 1, true, this.queryParams['sortTerm'],
+      this.queryParams['sortDirection']);
+    this.updateUrlParameters(searchTerm, 'searchTerm');
+    this.updateUrlParameters('', 'page');
   }
 
   customSort(event: any) {
-    this.getTnaProjects(this.currentSearchTerm, 1, true, this.getApiTerm(event.active), event.direction)
+    this.sortTerm = this.getApiTerm(event.active);
+    this.sortDirection = event.direction;
+    if ('sortables' in event){
+      // on page init, event is a MatSort object
+      this.getTnaProjects('sortEvent', this.currentSearchTerm, this.queryParams['page'], true, this.sortTerm, this.sortDirection);
+    } else{
+      // start from the first page and remove page param from url
+      this.getTnaProjects('sortEvent', this.currentSearchTerm, 1, true, this.sortTerm, this.sortDirection);
+      this.paginator.pageIndex = 0;
+      this.updateUrlParameters('', 'page');
+      // update url params with new sorting values
+      this.updateUrlParameters(this.sortTerm, 'sortTerm');
+      this.updateUrlParameters(this.sortDirection, 'sortDirection');
+    }
   }
 
   getApiTerm(term: string) {
     const apiTerms: { [index: string]: any } = {
-      title: 'project_title'
+      title: 'project_title',
+      connected: 'associated_application',
+      status: 'record_status'
     }
     return apiTerms[term];
   }
 
+  getFrontendTerm(term: string) {
+    const frontendTerms: { [index: string]: any } = {
+      project_title: 'title',
+      associated_application: 'connected',
+      record_status: 'status'
+    }
+    return frontendTerms[term];
+  }
+
   onPageChange(event: any) {
     const currentPage = +event.pageIndex + 1;
-    this.getTnaProjects(this.currentSearchTerm, currentPage, true, this.getApiTerm(this.sort.active), this.sort.direction)
+    this.getTnaProjects('paginationEvent', this.currentSearchTerm, currentPage, true, this.sortTerm, this.sortDirection)
+    this.updateUrlParameters(currentPage.toString(), 'page');
+  }
+
+  updateUrlParameters(value: string, parameterName: string) {
+    if (value) {
+      this.queryParams[parameterName] = value;
+    } else {
+      if (parameterName in this.queryParams) {
+        delete this.queryParams[parameterName];
+      }
+    }
+    // will not reload the page, but will update query params
+    this.router.navigate([],
+      {
+        relativeTo: this.activatedRoute,
+        queryParams: this.queryParams,
+        replaceUrl: true, skipLocationChange: false
+      });
+  }
+
+  resetPagination(pageNumber: number) {
+    pageNumber = pageNumber - 1
+    if (pageNumber != 0 && this.paginator) {
+      this.paginator.pageIndex = pageNumber;
+    }
   }
 }
-
-
-
-

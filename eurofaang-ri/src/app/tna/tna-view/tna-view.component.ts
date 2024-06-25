@@ -1,5 +1,5 @@
 import {Component, OnInit} from '@angular/core';
-import {ActivatedRoute, Params, Router} from "@angular/router";
+import {ActivatedRoute, Params, Router, RouterLink} from "@angular/router";
 import {ApiService} from "../../services/api.service";
 import {CdkTextareaAutosize} from "@angular/cdk/text-field";
 import {FormsModule, ReactiveFormsModule} from "@angular/forms";
@@ -29,7 +29,8 @@ import {MatDivider} from "@angular/material/divider";
     NgForOf,
     NgIf,
     ReactiveFormsModule,
-    MatDivider
+    MatDivider,
+    RouterLink
   ],
   templateUrl: './tna-view.component.html',
   styleUrl: './tna-view.component.css',
@@ -37,14 +38,22 @@ import {MatDivider} from "@angular/material/divider";
 })
 export class TnaViewComponent implements OnInit {
   tnaId: string = '';
+  userID: number | null = 0;
   tnaProjectDetails: any;
   userFullName: string = '';
   participants: [] = [];
   dataLoaded: boolean = false;
+  enableEdit: boolean = true;
 
   constructor(private route: ActivatedRoute,
               private apiService: ApiService,
               private router: Router,) {
+
+    const userData: string | null = sessionStorage.getItem('userData');
+    if (userData) {
+      const userDataObj = JSON.parse(userData);
+      this.userID = parseInt(userDataObj['id']);
+    }
 
   }
   ngOnInit() {

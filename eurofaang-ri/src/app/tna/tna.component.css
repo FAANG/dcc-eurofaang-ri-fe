@@ -216,3 +216,9 @@ hr.participant {
   border-color: #ca452e;
   background: #da4932;
 }
+
+.participantDetailsContainer {
+  margin-left: auto;
+  margin-right: auto;
+  width: 90%;
+}

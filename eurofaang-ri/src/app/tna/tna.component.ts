@@ -34,6 +34,7 @@ import {MatSnackBar} from "@angular/material/snack-bar";
 import {countries} from '../shared/constants';
 import { MatDialog } from '@angular/material/dialog';
 import { TnaDialogComponent } from './tna-dialog/tna-dialog.component';
+import {ParticipantDetailsComponent} from "./participant-details/participant-details.component";
 
 @Component({
   selector: 'app-tna',
@@ -71,7 +72,8 @@ import { TnaDialogComponent } from './tna-dialog/tna-dialog.component';
     NgForOf,
     CommonModule,
     MatIcon,
-    FormsModule
+    FormsModule,
+    ParticipantDetailsComponent
   ],
   providers: [ApiService],
   templateUrl: './tna.component.html',
@@ -93,6 +95,7 @@ export class TnaComponent implements OnInit {
   enableEdit: boolean = true;
   participant_action: {[index: string]:any}= {};
   pageMode: string = '';
+  participantDetails: {[index: string]:any}= {}; // store selected participant details
 
   constructor(private formBuilder: FormBuilder,
               private router: Router,
@@ -348,7 +351,7 @@ export class TnaComponent implements OnInit {
           this.apiService.editTnaProject(formValues, tnaId).subscribe({
           next: (data) => {
             this.openSnackbar(`TNA project successfully ${action}`, 'Dismiss');
-            this.router.navigate([`/user-profile/${this.userID}`]);
+            this.router.navigate([`/tna/view/${tnaId}`]);
           },
           error: (error) => {
             this.openSnackbar('Submission Failed! Contact FAANG helpdesk', 'Dismiss');
@@ -539,6 +542,26 @@ export class TnaComponent implements OnInit {
     const participants = this.tnaForm.get('participants.participantFields') as FormArray;
     participants.controls[index] = this.createParticipantFormGroup(event.value);
     this.participant_action[index] = event.value;
+    delete this.participantDetails[index];
+  }
+
+  associatedProjChange(event: MatRadioChange): void {
+    this.tnaForm.get('projectInformation.associatedProjectTitle')?.setValue('');
+  }
+
+  getParticipantDetails(event: any, index: number){
+    this.apiService.getUserDetails(event.value).subscribe(
+      {
+        next: (data) => {
+          this.participantDetails[index] = data['data'];
+        },
+        error: (err: any) => {
+          console.log(err.message);
+        },
+        complete: () => {
+        }
+      }
+    );
   }
 
 }

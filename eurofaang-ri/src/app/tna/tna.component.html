@@ -38,19 +38,34 @@
           <div formArrayName="participantFields">
             <div *ngFor="let filterField of getFormControls(); let i = index" [formGroupName]="i">
               <mat-radio-group aria-label="Select an option" (change)="radioChange($event, i)" *ngIf="enabledMode(filterField)">
-                <mat-radio-button value="existing" [checked]="participant_action[i] === 'existing'">Select additional participants</mat-radio-button> <!--[checked]="participant_action === 'existing'" -->
-                <mat-radio-button value="new" [checked]="participant_action[i] === 'new'">Create new participant</mat-radio-button> <!-- [checked]="participant_action === 'new'" -->
+                <mat-radio-button value="existing" [checked]="participant_action[i] === 'existing'">Select additional participants</mat-radio-button>
+                <mat-radio-button value="new" [checked]="participant_action[i] === 'new'">Create new participant</mat-radio-button>
               </mat-radio-group>
 
               <div *ngIf="participant_action[i] === 'existing'">
                 <mat-form-field appearance="fill">
                   <mat-label>Select additional participants</mat-label>
-                  <mat-select formControlName="existingParticipants">
+                  <mat-select formControlName="existingParticipants" (selectionChange)="getParticipantDetails($event, i)">
                     <mat-option *ngFor="let participant of existingAddParticipantsList" [value]="getId(participant)">
                       {{ getUserFullName(participant) }}
                     </mat-option>
                   </mat-select>
                 </mat-form-field>
+
+               <div class="participantDetailsContainer">
+                 @defer (when participantDetails[i]) {
+                   <app-participant-details [participantDetails]="participantDetails[i]"/>
+                 }
+                 @loading {
+                   Loading...
+                 } @placeholder {
+                   Fetching participant details
+                 } @error {
+                   Failed to load data!
+                 }
+               </div>
+
+
                 <div class="removeButton" *ngIf="enableEdit">
                   <button mat-flat-button (click)="removeFilter(i)" color="warn">
                     Remove participant
@@ -131,9 +146,9 @@
       <div class="fieldsPosition">
         <div class="boldText">Is this application connected to another application in the current call of PIGWEB?</div>
         <div>
-          <div formGroupName="projectInformation" class="leftAlignxxx">
+          <div formGroupName="projectInformation">
             <div class="leftAlign">
-              <mat-radio-group aria-label="Select an option" formControlName="applicationConnection">
+              <mat-radio-group aria-label="Select an option" formControlName="applicationConnection" (change)="associatedProjChange($event)">
                 <mat-radio-button value="no" [checked]="true">No</mat-radio-button>
                 <mat-radio-button value="yes">Yes</mat-radio-button>
               </mat-radio-group>
