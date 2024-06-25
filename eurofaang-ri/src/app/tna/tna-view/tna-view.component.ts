@@ -48,11 +48,6 @@ export class TnaViewComponent implements OnInit {
 
   }
   ngOnInit() {
-    if (!this.apiService.isLoggedIn()) {
-      this.router.navigate(['/login']);
-      return;
-    }
-
     this.route.params.subscribe((params: Params) => {
       this.tnaId = params['id'];
       this.loadTnaProjectDetails();
@@ -60,39 +55,26 @@ export class TnaViewComponent implements OnInit {
   }
 
   loadTnaProjectDetails() {
-
     if (this.tnaId) {
-
       this.apiService.getTnaProjectDetails(this.tnaId).subscribe(
         {
           next: (data) => {
-            if (!("data" in data)) {
-              this.router.navigate(['404']);
-            } else {
-              this.tnaProjectDetails = data['data'];
-              this.userFullName = `${this.tnaProjectDetails['principal_investigator']['first_name']}
-              ${this.tnaProjectDetails['principal_investigator']['last_name']}`
-              if ('additional_participants' in this.tnaProjectDetails){
-                this.participants = this.tnaProjectDetails['additional_participants']
-              }
-              this.dataLoaded = true;
+            this.tnaProjectDetails = data['data'];
+            this.userFullName = `${this.tnaProjectDetails['principal_investigator']['first_name']}
+            ${this.tnaProjectDetails['principal_investigator']['last_name']}`
+            if ('additional_participants' in this.tnaProjectDetails){
+              this.participants = this.tnaProjectDetails['additional_participants']
             }
+            this.dataLoaded = true;
           },
           error: (err: any) => {
-            if (err.status === 404) {
-              this.router.navigate(['404']);
-            } else {
-              this.router.navigate(['403']);
-            }
+            this.router.navigate([err.status]);
             console.log(err.message);
           },
           complete: () => {
           }
         }
       );
-
-    } else {
-      this.router.navigate(['404']);
     }
   }
 

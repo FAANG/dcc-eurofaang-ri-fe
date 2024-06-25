@@ -51,7 +51,6 @@ export class UserProfileComponent implements OnInit, AfterViewInit {
   @ViewChild(MatPaginator) paginator: MatPaginator = <MatPaginator>{};
   @ViewChild(MatSort) sort: MatSort = <MatSort>{};
   userId: string | null = '';
-  userAuthId: string | null = '';
 
   constructor(private userProfileService: UserProfileService,
               private activatedRoute: ActivatedRoute,
@@ -67,17 +66,11 @@ export class UserProfileComponent implements OnInit, AfterViewInit {
     this.userProfileService.getUserProfile(this.userId).subscribe({
       next: (data) => {
         this.userProfile = data as UserProfile;
-        this.userAuthId = sessionStorage.getItem('userAuthId');
-
-        if (this.userId !== this.userAuthId) {
-          this.router.navigate(['403']);
-          return;
-        }
-
         this.getTnaProjects('', 0, true, 'id', 'asc');
       },
-      error: (error) => {
-        console.log(error);
+      error: (err) => {
+        this.router.navigate([err.status]);
+        console.log(err);
       }
     });
     this.sort.active = 'id';
