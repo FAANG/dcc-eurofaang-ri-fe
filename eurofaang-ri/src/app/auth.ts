@@ -4,7 +4,6 @@ export interface UserCredentials {
 }
 
 export interface LoggedInUser {
-  role: string;
   id: number,
   token: string,
   username: string
