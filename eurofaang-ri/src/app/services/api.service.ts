@@ -1,6 +1,6 @@
 import {Injectable} from '@angular/core';
 import {HttpClient, HttpErrorResponse, HttpHeaders} from '@angular/common/http';
-import {throwError} from 'rxjs';
+import {Observable, throwError} from 'rxjs';
 import {catchError, map} from 'rxjs/operators';
 import {URL} from "../auth";
 import {Router} from "@angular/router";
@@ -17,12 +17,9 @@ export class ApiService {
 
   constructor(private http: HttpClient, private router: Router) {}
 
-  getTnaProjects(
-    searchTerm: string, pageNumber: number, pagination: boolean, sortTerm: string, sortDirection: string,
-    userId: string | null
+  private getUpdatedUrl(
+    url: string, searchTerm: string, pageNumber: number, pagination: boolean, sortTerm: string, sortDirection: string
   ) {
-    let url = `${URL}/api/v1/tna/`;
-    // defines whether the data will be paginated on the backend
     const paginationParam = url.includes('?') ? `&pagination=${pagination}` : `?pagination=${pagination}`
     url = url + paginationParam;
 
@@ -39,9 +36,15 @@ export class ApiService {
       const pageParam = url.includes('?') ? `&ordering=${direction}${sortTerm}` : `?ordering=${direction}${sortTerm}`
       url = url + pageParam;
     }
-    if (userId) {
-      url += `&user_id=${userId}`;
-    }
+    return url;
+  }
+
+  getTnaProjects(
+    searchTerm: string, pageNumber: number, pagination: boolean, sortTerm: string, sortDirection: string
+  ) {
+    let url = `${URL}/api/v1/tna/`;
+    // defines whether the data will be paginated on the backend
+    url = this.getUpdatedUrl(url, searchTerm, pageNumber, pagination, sortTerm, sortDirection);
     let res: { [key: string]: any } = {}
     return this.http.get(url, this.httpOptions).pipe(
       map((data: any) => {
@@ -73,22 +76,7 @@ export class ApiService {
   getUsers(searchTerm: string, pageNumber: number, pagination: boolean, sortTerm: string, sortDirection: string) {
     let url = `${URL}/api/v1/users/`;
     // defines whether the data will be paginated on the backend
-    const paginationParam = url.includes('?') ? `&pagination=${pagination}` : `?pagination=${pagination}`
-    url = url + paginationParam;
-
-    if (searchTerm){
-      const searchParam = url.includes('?') ? `&search=${searchTerm}` : `?search=${searchTerm}`
-      url = url + searchParam;
-    }
-    if (pageNumber){
-      const pageParam = url.includes('?') ? `&page=${pageNumber}` : `?page=${pageNumber}`
-      url = url + pageParam;
-    }
-    if (sortTerm){
-      const direction: '-'|'' = sortDirection === 'desc' ? '-' : '';
-      const pageParam = url.includes('?') ? `&ordering=${direction}${sortTerm}` : `?ordering=${direction}${sortTerm}`
-      url = url + pageParam;
-    }
+    url = this.getUpdatedUrl(url, searchTerm, pageNumber, pagination, sortTerm, sortDirection);
     let res: { [key: string]: any } = {}
     return this.http.get(url, this.httpOptions).pipe(
       map((data: any) => {
@@ -106,7 +94,7 @@ export class ApiService {
 
 
   getUserDetails(userId: number) {
-    const url = `${URL}/api/v1/users/${userId}/`;
+    const url = `${URL}/api/v1/users/${userId}/details/`;
     const res: { [key: string]: any } = {}
     return this.http.get(url).pipe(
       map((data: any) => {

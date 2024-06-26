@@ -42,7 +42,6 @@ export class TnaViewComponent implements OnInit {
   tnaProjectDetails: any;
   userFullName: string = '';
   participants: [] = [];
-  dataLoaded: boolean = false;
   enableEdit: boolean = true;
 
   constructor(private route: ActivatedRoute,
@@ -74,11 +73,9 @@ export class TnaViewComponent implements OnInit {
             if ('additional_participants' in this.tnaProjectDetails){
               this.participants = this.tnaProjectDetails['additional_participants']
             }
-            this.dataLoaded = true;
           },
           error: (err: any) => {
             this.router.navigate([err.status]);
-            console.log(err.message);
           },
           complete: () => {
           }

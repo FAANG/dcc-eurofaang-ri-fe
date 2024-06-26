@@ -3,7 +3,7 @@ import {UserProfile} from "../user-profile";
 import {UserProfileService} from "../services/user-profile.service";
 import {ActivatedRoute, Params, Router, RouterLink} from "@angular/router";
 import {MatCardModule} from "@angular/material/card";
-import {CommonModule} from "@angular/common";
+import {CommonModule, NgIf} from "@angular/common";
 import {MatButtonModule} from "@angular/material/button";
 import {MatListModule} from "@angular/material/list";
 import {MatTableDataSource, MatTableModule} from "@angular/material/table";
@@ -34,7 +34,7 @@ export interface TnaDisplayInterface {
   standalone: true,
   imports: [MatCardModule, CommonModule, MatButtonModule, MatListModule, MatTableModule, RouterLink,
     MatFormField, FormsModule, MatFormFieldModule, MatInputModule, MatPaginator, MatPaginatorModule, MatSortModule,
-    MatIcon],
+    MatIcon, NgIf],
   providers: [ApiService],
   templateUrl: './user-profile.component.html',
   styleUrl: './user-profile.component.css'
@@ -66,14 +66,15 @@ export class UserProfileComponent implements OnInit, AfterViewInit {
 
 
   ngOnInit(): void {
-    this.userId = this.activatedRoute.snapshot.paramMap.get('id');
-    this.userProfileService.getUserProfile(this.userId).subscribe({
+    const userId = this.activatedRoute.snapshot.paramMap.get('id');
+    this.userProfileService.getUserProfile(userId).subscribe({
       next: (data) => {
-        this.userProfile = data as UserProfile;
+        if (data && Object.keys(data).length > 0) {
+          this.userProfile = data as UserProfile;
+        }
       },
       error: (err) => {
         this.router.navigate([err.status]);
-        console.log(err);
       }
     });
 
@@ -102,7 +103,7 @@ export class UserProfileComponent implements OnInit, AfterViewInit {
       sortDirection = "desc";
     }
 
-    this.apiService.getTnaProjects(searchTerm, pageNumber, true, sortTerm, sortDirection, this.userId).subscribe(
+    this.apiService.getTnaProjects(searchTerm, pageNumber, true, sortTerm, sortDirection).subscribe(
       {
         next: (data) => {
           this.projectsList = data['data'].map((entry: { [x: string]: any; }) => ({
@@ -122,7 +123,7 @@ export class UserProfileComponent implements OnInit, AfterViewInit {
           this.totalHits = data['count'];
         },
         error: (err: any) => {
-          console.log(err.message);
+          this.router.navigate([err.status]);
         },
         complete: () => {
           if (pageEvent === 'pageInit'){
