@@ -106,7 +106,6 @@ export class UserProfileComponent implements OnInit, AfterViewInit {
     this.apiService.getTnaProjects(searchTerm, pageNumber, true, sortTerm, sortDirection).subscribe(
       {
         next: (data) => {
-          console.log(this.userProfile);
           this.projectsList = data['data'].map((entry: { [x: string]: any; }) => ({
             id: entry['id'],
             title: entry['project_title'],

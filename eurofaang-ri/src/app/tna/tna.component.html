@@ -1,4 +1,4 @@
-<div class="main-container">
+<div class="main-container" *ngIf="dataLoaded | async">
   <div class="containerElement">
     <div class="alert alert-danger alert-white rounded" *ngIf="!enableEdit">
       <div class="icon"><i class="fa fa-times-circle"></i></div>
@@ -10,7 +10,7 @@
         This submission has already been submitted
       </div>
     </div>
-    <form [formGroup]="tnaForm">
+    <form [formGroup]="tnaForm" *ngIf="tnaForm">
       <h1 class="form-heading">TNA User Information</h1>
       <hr/>
       <div class="fieldsPosition" style="display: none">
@@ -65,14 +65,12 @@
                  }
                </div>
 
-
                 <div class="removeButton" *ngIf="enableEdit">
                   <button mat-flat-button (click)="removeFilter(i)" color="warn">
                     Remove participant
                   </button>
                 </div>
               </div>
-
 
               <div class="participantForm" *ngIf="participant_action[i] === 'new' || !enabledMode(filterField)">
                 <mat-form-field appearance="fill">
@@ -353,4 +351,3 @@
     </form>
   </div>
 </div>
-

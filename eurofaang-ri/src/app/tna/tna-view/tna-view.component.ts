@@ -9,7 +9,7 @@ import {MatInput} from "@angular/material/input";
 import {MatOption} from "@angular/material/autocomplete";
 import {MatRadioButton, MatRadioGroup} from "@angular/material/radio";
 import {MatSelect} from "@angular/material/select";
-import {NgForOf, NgIf} from "@angular/common";
+import {AsyncPipe, NgForOf, NgIf} from "@angular/common";
 import {MatDivider} from "@angular/material/divider";
 
 @Component({
@@ -30,7 +30,8 @@ import {MatDivider} from "@angular/material/divider";
     NgIf,
     ReactiveFormsModule,
     MatDivider,
-    RouterLink
+    RouterLink,
+    AsyncPipe
   ],
   templateUrl: './tna-view.component.html',
   styleUrl: './tna-view.component.css',
@@ -43,6 +44,7 @@ export class TnaViewComponent implements OnInit {
   userFullName: string = '';
   participants: [] = [];
   enableEdit: boolean = true;
+  dataLoaded: Promise<boolean> | undefined;
 
   constructor(private route: ActivatedRoute,
               private apiService: ApiService,
@@ -73,6 +75,7 @@ export class TnaViewComponent implements OnInit {
             if ('additional_participants' in this.tnaProjectDetails){
               this.participants = this.tnaProjectDetails['additional_participants']
             }
+            this.dataLoaded = Promise.resolve(true);
           },
           error: (err: any) => {
             this.router.navigate([err.status]);
