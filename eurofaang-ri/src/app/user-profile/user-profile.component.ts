@@ -71,6 +71,8 @@ export class UserProfileComponent implements OnInit, AfterViewInit {
       next: (data) => {
         if (data && Object.keys(data).length > 0) {
           this.userProfile = data as UserProfile;
+          this.getTnaProjects('pageInit', this.queryParams['searchTerm'], this.queryParams['page'], true, this.queryParams['sortTerm'],
+            this.queryParams['sortDirection']);
         }
       },
       error: (err) => {
@@ -82,8 +84,6 @@ export class UserProfileComponent implements OnInit, AfterViewInit {
       this.queryParams = {...params};
       this.currentSearchTerm = params['searchTerm'];
     });
-    this.getTnaProjects('pageInit', this.queryParams['searchTerm'], this.queryParams['page'], true, this.queryParams['sortTerm'],
-      this.queryParams['sortDirection']);
 
     if (this.queryParams['sortTerm'] && this.queryParams['sortDirection']){
       this.sortTerm = this.queryParams['sortTerm'];
@@ -106,6 +106,7 @@ export class UserProfileComponent implements OnInit, AfterViewInit {
     this.apiService.getTnaProjects(searchTerm, pageNumber, true, sortTerm, sortDirection).subscribe(
       {
         next: (data) => {
+          console.log(this.userProfile);
           this.projectsList = data['data'].map((entry: { [x: string]: any; }) => ({
             id: entry['id'],
             title: entry['project_title'],
