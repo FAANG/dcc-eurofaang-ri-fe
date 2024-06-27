@@ -75,6 +75,7 @@ export class TnaViewComponent implements OnInit {
             if ('additional_participants' in this.tnaProjectDetails){
               this.participants = this.tnaProjectDetails['additional_participants']
             }
+            this.enableEdit = this.tnaProjectDetails['tna_owner'] === this.userID;
             this.dataLoaded = Promise.resolve(true);
           },
           error: (err: any) => {
