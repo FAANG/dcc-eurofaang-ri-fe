@@ -186,6 +186,7 @@ export class TnaComponent implements OnInit {
     } else {
       this.pageMode = 'new';
       this.participant_action[0] = 'existing';
+      this.dataLoaded = Promise.resolve(true);
     }
     this.countriesList = countries;
     this.getTnaProjects();
