@@ -50,6 +50,8 @@ export class UserProfileComponent implements OnInit, AfterViewInit {
   currentSearchTerm: string = '';
   sortTerm: string = '';
   sortDirection: string = '';
+  defaultPageSize: number = 10;
+  defaultPageNumber: number = 1;
 
   dataSource = new MatTableDataSource<any>();
   @ViewChild(MatPaginator) paginator: MatPaginator = <MatPaginator>{};
@@ -71,7 +73,9 @@ export class UserProfileComponent implements OnInit, AfterViewInit {
       next: (data) => {
         if (data && Object.keys(data).length > 0) {
           this.userProfile = data as UserProfile;
-          this.getTnaProjects('pageInit', this.queryParams['searchTerm'], this.queryParams['page'], true, this.queryParams['sortTerm'],
+          this.getTnaProjects('pageInit', this.queryParams['searchTerm'],
+            this.queryParams['page'] || this.defaultPageNumber,
+            this.queryParams['size'] || this.defaultPageSize, true, this.queryParams['sortTerm'],
             this.queryParams['sortDirection']);
         }
       },
@@ -96,14 +100,16 @@ export class UserProfileComponent implements OnInit, AfterViewInit {
     this.dataSource.sort = this.sort;
   }
 
-  getTnaProjects(pageEvent: string, searchTerm: string, pageNumber: number, pagination: boolean, sortTerm: string, sortDirection: string) {
+  getTnaProjects(
+    pageEvent: string, searchTerm: string, pageNumber: number, pageSize: number, pagination: boolean, sortTerm: string,
+    sortDirection: string) {
     // default sorting
     if (!sortTerm){
       sortTerm = "id";
       sortDirection = "desc";
     }
 
-    this.apiService.getTnaProjects(searchTerm, pageNumber, true, sortTerm, sortDirection).subscribe(
+    this.apiService.getTnaProjects(searchTerm, pageNumber, pageSize, true, sortTerm, sortDirection).subscribe(
       {
         next: (data) => {
           this.projectsList = data['data'].map((entry: { [x: string]: any; }) => ({
@@ -152,7 +158,8 @@ export class UserProfileComponent implements OnInit, AfterViewInit {
   }
 
   applySearchFilter(searchTerm: string) {
-    this.getTnaProjects('searchEvent', searchTerm, 1, true, this.queryParams['sortTerm'],
+    this.getTnaProjects('searchEvent', searchTerm, 1, this.paginator.pageSize, true,
+      this.queryParams['sortTerm'],
       this.queryParams['sortDirection']);
     this.updateUrlParameters(searchTerm, 'searchTerm');
     this.updateUrlParameters('', 'page');
@@ -163,10 +170,12 @@ export class UserProfileComponent implements OnInit, AfterViewInit {
     this.sortDirection = event.direction;
     if ('sortables' in event){
       // on page init, event is a MatSort object
-      this.getTnaProjects('sortEvent', this.currentSearchTerm, this.queryParams['page'], true, this.sortTerm, this.sortDirection);
+      this.getTnaProjects('sortEvent', this.currentSearchTerm, this.queryParams['page'],
+        this.paginator.pageSize, true, this.sortTerm, this.sortDirection);
     } else{
       // start from the first page and remove page param from url
-      this.getTnaProjects('sortEvent', this.currentSearchTerm, 1, true, this.sortTerm, this.sortDirection);
+      this.getTnaProjects('sortEvent', this.currentSearchTerm, 1, this.paginator.pageSize,
+        true, this.sortTerm, this.sortDirection);
       this.paginator.pageIndex = 0;
       this.updateUrlParameters('', 'page');
       // update url params with new sorting values
@@ -195,8 +204,12 @@ export class UserProfileComponent implements OnInit, AfterViewInit {
 
   onPageChange(event: any) {
     const currentPage = +event.pageIndex + 1;
-    this.getTnaProjects('paginationEvent', this.currentSearchTerm, currentPage, true, this.sortTerm, this.sortDirection)
+    const pageSize = event.pageSize;
+    this.getTnaProjects(
+      'paginationEvent', this.currentSearchTerm, currentPage, pageSize, true, this.sortTerm,
+      this.sortDirection)
     this.updateUrlParameters(currentPage.toString(), 'page');
+    this.updateUrlParameters(pageSize.toString(), 'size');
   }
 
   updateUrlParameters(value: string, parameterName: string) {
