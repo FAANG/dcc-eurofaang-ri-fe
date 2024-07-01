@@ -3,7 +3,7 @@ import {UserProfile} from "../user-profile";
 import {UserProfileService} from "../services/user-profile.service";
 import {ActivatedRoute, Params, Router, RouterLink} from "@angular/router";
 import {MatCardModule} from "@angular/material/card";
-import {CommonModule} from "@angular/common";
+import {CommonModule, NgIf} from "@angular/common";
 import {MatButtonModule} from "@angular/material/button";
 import {MatListModule} from "@angular/material/list";
 import {MatTableDataSource, MatTableModule} from "@angular/material/table";
@@ -34,7 +34,7 @@ export interface TnaDisplayInterface {
   standalone: true,
   imports: [MatCardModule, CommonModule, MatButtonModule, MatListModule, MatTableModule, RouterLink,
     MatFormField, FormsModule, MatFormFieldModule, MatInputModule, MatPaginator, MatPaginatorModule, MatSortModule,
-    MatIcon],
+    MatIcon, NgIf],
   providers: [ApiService],
   templateUrl: './user-profile.component.html',
   styleUrl: './user-profile.component.css'
@@ -54,6 +54,7 @@ export class UserProfileComponent implements OnInit, AfterViewInit {
   dataSource = new MatTableDataSource<any>();
   @ViewChild(MatPaginator) paginator: MatPaginator = <MatPaginator>{};
   @ViewChild(MatSort) sort: MatSort = <MatSort>{};
+  private userId: string | null = '';
 
   constructor(private userProfileService: UserProfileService,
               private activatedRoute: ActivatedRoute,
@@ -68,10 +69,14 @@ export class UserProfileComponent implements OnInit, AfterViewInit {
     const userId = this.activatedRoute.snapshot.paramMap.get('id');
     this.userProfileService.getUserProfile(userId).subscribe({
       next: (data) => {
-        this.userProfile = data as UserProfile;
+        if (data && Object.keys(data).length > 0) {
+          this.userProfile = data as UserProfile;
+          this.getTnaProjects('pageInit', this.queryParams['searchTerm'], this.queryParams['page'], true, this.queryParams['sortTerm'],
+            this.queryParams['sortDirection']);
+        }
       },
-      error: (error) => {
-        console.log(error);
+      error: (err) => {
+        this.router.navigate([err.status]);
       }
     });
 
@@ -79,8 +84,6 @@ export class UserProfileComponent implements OnInit, AfterViewInit {
       this.queryParams = {...params};
       this.currentSearchTerm = params['searchTerm'];
     });
-    this.getTnaProjects('pageInit', this.queryParams['searchTerm'], this.queryParams['page'], true, this.queryParams['sortTerm'],
-      this.queryParams['sortDirection']);
 
     if (this.queryParams['sortTerm'] && this.queryParams['sortDirection']){
       this.sortTerm = this.queryParams['sortTerm'];
@@ -120,19 +123,19 @@ export class UserProfileComponent implements OnInit, AfterViewInit {
           this.totalHits = data['count'];
         },
         error: (err: any) => {
-          console.log(err.message);
+          this.router.navigate([err.status]);
         },
         complete: () => {
-        if (pageEvent === 'pageInit'){
-          if (this.queryParams['page']){
-            this.resetPagination(this.queryParams['page']);
+          if (pageEvent === 'pageInit'){
+            if (this.queryParams['page']){
+              this.resetPagination(this.queryParams['page']);
+            }
+            if (this.queryParams['sortTerm'] && this.sort){
+              this.sort.active = this.getFrontendTerm(this.queryParams['sortTerm']);
+              this.sort.direction = this.queryParams['sortDirection'] || 'asc';
+              this.sort.sortChange.emit(this.sort);
+            }
           }
-          if (this.queryParams['sortTerm'] && this.sort){
-            this.sort.active = this.getFrontendTerm(this.queryParams['sortTerm']);
-            this.sort.direction = this.queryParams['sortDirection'] || 'asc';
-            this.sort.sortChange.emit(this.sort);
-          }
-        }
         }
       });
   }
@@ -220,7 +223,3 @@ export class UserProfileComponent implements OnInit, AfterViewInit {
     }
   }
 }
-
-
-
-

@@ -1,4 +1,4 @@
-<div class="main-container">
+<div class="main-container" *ngIf="dataLoaded | async">
   <div class="containerElement">
     <h1 class="section-heading">TNA User Information</h1>
     <hr/>
@@ -86,7 +86,3 @@
   </div>
 
 </div>
-
-
-
-
