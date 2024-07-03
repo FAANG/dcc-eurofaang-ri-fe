@@ -134,7 +134,7 @@ export class TnaComponent implements OnInit {
           [this.createParticipantFormGroup('existing')])
       }),
       projectInformation: this.formBuilder.group({
-        applicationConnection: ['no'],
+        applicationConnection: [''],
         associatedProjectTitle: [''],
         projectTitle: ['', Validators.required],
 
