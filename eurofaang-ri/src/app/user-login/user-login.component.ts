@@ -6,7 +6,7 @@ import {MatInputModule} from "@angular/material/input";
 import {MatButtonModule} from "@angular/material/button";
 import {Router} from "@angular/router";
 import {MatProgressSpinnerModule} from "@angular/material/progress-spinner";
-import {NgIf} from "@angular/common";
+import {NgForOf, NgIf} from "@angular/common";
 
 @Component({
   selector: 'app-user-login',
@@ -16,7 +16,8 @@ import {NgIf} from "@angular/common";
     MatInputModule,
     MatButtonModule,
     MatProgressSpinnerModule,
-    NgIf
+    NgIf,
+    NgForOf
   ],
   templateUrl: './user-login.component.html',
   styleUrl: './user-login.component.css'
@@ -24,6 +25,7 @@ import {NgIf} from "@angular/common";
 export class UserLoginComponent {
   logInForm: FormGroup;
   formSubmitted = false;
+  public error = '';
   constructor(private formBuilder: FormBuilder,
               private authService: AuthService,
               private router: Router) {
@@ -38,11 +40,12 @@ export class UserLoginComponent {
   logInUser(user: UserCredentials): void {
     this.authService.logIn(user.username, user.password).subscribe({
       next: (data) => {
+        this.formSubmitted = true;
         this.authService.setLoggedInUser(data);
         this.router.navigateByUrl(`/user-profile/${data.id}`);
       },
       error: (error) => {
-        console.log(error);
+        this.error = error.message;
       }
     });
   }
@@ -51,7 +54,6 @@ export class UserLoginComponent {
     if (this.logInForm.invalid) {
       console.log(this.logInForm.errors);
     } else {
-      this.formSubmitted = true;
       this.logInUser(this.logInForm.value);
     }
   }
