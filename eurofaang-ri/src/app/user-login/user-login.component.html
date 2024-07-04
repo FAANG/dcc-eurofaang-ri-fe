@@ -12,8 +12,15 @@
         <mat-label>Password</mat-label>
         <input matInput formControlName="password" type="password">
       </mat-form-field>
+      @if (error) {
+        <div class="error-message">
+          <mat-error>User name or password is not correct. Please try again</mat-error>
+        </div>
+      }
       <br>
-      <button mat-flat-button color="primary" type="submit">LOG IN</button>
+      <div class="button-container">
+        <button mat-flat-button color="primary" type="submit">LOG IN</button>
+      </div>
     </form>
   </div>
   <div class="item" *ngIf="formSubmitted">

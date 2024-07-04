@@ -9,4 +9,15 @@ h2 {
 
 .item {
   margin-top: 15px;
+  max-width: 210px;
+}
+
+.button-container {
+  display: flex;
+  justify-content: center;
+}
+
+.error-message {
+  width: 100%;
+  text-align: center;
 }
