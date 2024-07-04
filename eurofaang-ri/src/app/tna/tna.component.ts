@@ -467,7 +467,9 @@ export class TnaComponent implements OnInit {
     this.apiService.getUsers('', 0, 10, false, 'last_name', 'asc').subscribe(
       {
         next: (data) => {
-          this.existingAddParticipantsList = data['data'].map((entry: { [x: string]: any; }) => ({
+          this.existingAddParticipantsList = data['data'].filter(
+            (entry: { [x: string]: any; }) => entry['id'] !== this.userID
+          ).map((entry: { [x: string]: any; }) => ({
             id: Number(entry['id']),
             name: `${entry['first_name']} ${entry['last_name']}`
           }));
