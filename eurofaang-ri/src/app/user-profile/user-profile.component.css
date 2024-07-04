@@ -22,6 +22,10 @@ a {
   color: steelblue;
 }
 
+.disable-icon {
+  color: #cccccc;
+}
+
 .redText {
   color: #D8524B;
   font-weight: bold;

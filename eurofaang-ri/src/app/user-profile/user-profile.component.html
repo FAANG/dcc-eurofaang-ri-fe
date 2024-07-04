@@ -88,8 +88,8 @@
               <mat-icon class="edit-icon">edit</mat-icon>
             </button>
           } @else {
-            <button mat-icon-button>
-              <mat-icon class="edit-icon">edit_off</mat-icon>
+            <button mat-icon-button [disabled]= "true">
+              <mat-icon class="disable-icon">edit_off</mat-icon>
             </button>
           }
         </td>
