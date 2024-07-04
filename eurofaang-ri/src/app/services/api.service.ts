@@ -18,7 +18,8 @@ export class ApiService {
   constructor(private http: HttpClient, private router: Router) {}
 
   private getUpdatedUrl(
-    url: string, searchTerm: string, pageNumber: number, pagination: boolean, sortTerm: string, sortDirection: string
+    url: string, searchTerm: string, pageNumber: number, pageSize: number, pagination: boolean, sortTerm: string,
+    sortDirection: string
   ) {
     const paginationParam = url.includes('?') ? `&pagination=${pagination}` : `?pagination=${pagination}`
     url = url + paginationParam;
@@ -31,6 +32,10 @@ export class ApiService {
       const pageParam = url.includes('?') ? `&page=${pageNumber}` : `?page=${pageNumber}`
       url = url + pageParam;
     }
+    if (pageSize) {
+      const pageSizeParam = url.includes('?') ? `&size=${pageSize}` : `?size=${pageSize}`;
+      url = url + pageSizeParam;
+    }
     if (sortTerm){
       const direction: '-'|'' = sortDirection === 'desc' ? '-' : '';
       const pageParam = url.includes('?') ? `&ordering=${direction}${sortTerm}` : `?ordering=${direction}${sortTerm}`
@@ -40,11 +45,11 @@ export class ApiService {
   }
 
   getTnaProjects(
-    searchTerm: string, pageNumber: number, pagination: boolean, sortTerm: string, sortDirection: string
+    searchTerm: string, pageNumber: number, pageSize: number, pagination: boolean, sortTerm: string, sortDirection: string
   ) {
     let url = `${URL}/api/v1/tna/`;
     // defines whether the data will be paginated on the backend
-    url = this.getUpdatedUrl(url, searchTerm, pageNumber, pagination, sortTerm, sortDirection);
+    url = this.getUpdatedUrl(url, searchTerm, pageNumber, pageSize, pagination, sortTerm, sortDirection);
     let res: { [key: string]: any } = {}
     return this.http.get(url, this.httpOptions).pipe(
       map((data: any) => {
@@ -73,10 +78,11 @@ export class ApiService {
   }
 
 
-  getUsers(searchTerm: string, pageNumber: number, pagination: boolean, sortTerm: string, sortDirection: string) {
+  getUsers(searchTerm: string, pageNumber: number, pageSize: number, pagination: boolean, sortTerm: string,
+           sortDirection: string) {
     let url = `${URL}/api/v1/users/`;
     // defines whether the data will be paginated on the backend
-    url = this.getUpdatedUrl(url, searchTerm, pageNumber, pagination, sortTerm, sortDirection);
+    url = this.getUpdatedUrl(url, searchTerm, pageNumber, pageSize, pagination, sortTerm, sortDirection);
     let res: { [key: string]: any } = {}
     return this.http.get(url, this.httpOptions).pipe(
       map((data: any) => {

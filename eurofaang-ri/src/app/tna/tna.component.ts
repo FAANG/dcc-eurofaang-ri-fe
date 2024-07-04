@@ -464,7 +464,7 @@ export class TnaComponent implements OnInit {
   }
 
   getExistingParticipants(): void {
-    this.apiService.getUsers('', 0, false, 'last_name', 'asc').subscribe(
+    this.apiService.getUsers('', 0, 10, false, 'last_name', 'asc').subscribe(
       {
         next: (data) => {
           this.existingAddParticipantsList = data['data'].map((entry: { [x: string]: any; }) => ({
@@ -483,7 +483,7 @@ export class TnaComponent implements OnInit {
 
   getTnaProjects(): void {
     this.apiService.getTnaProjects(
-      '', 0, false, 'project_title', 'asc'
+      '', 0, 10, false, 'project_title', 'asc'
     ).subscribe(
       {
         next: (data) => {
