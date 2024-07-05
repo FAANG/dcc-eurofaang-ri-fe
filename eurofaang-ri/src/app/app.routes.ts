@@ -8,7 +8,7 @@ import {TnaViewComponent} from "./tna/tna-view/tna-view.component";
 
 
 export const routes: Routes = [
-  { path: 'login', component: UserLoginComponent },
+  { path: 'login', component: UserLoginComponent, canActivate: [authGuard] },
   { path: 'user-profile/:id', component: UserProfileComponent, canActivate: [authGuard] },
   { path: '', redirectTo: '/login', pathMatch: 'full' },
   { path: 'tna/new', component: TnaComponent, canActivate: [authGuard],},
