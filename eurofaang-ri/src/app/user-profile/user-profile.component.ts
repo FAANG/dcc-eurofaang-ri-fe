@@ -41,7 +41,7 @@ export interface TnaDisplayInterface {
 })
 export class UserProfileComponent implements OnInit, AfterViewInit {
   userProfile: UserProfile | null = null;
-  displayedColumns: string[] = ['id', 'title', 'pi', 'connected', 'status', 'actions'];
+  displayedColumns: string[] = ['title', 'pi', 'participants', 'connected', 'status', 'actions'];
   projectsList: TnaDisplayInterface[] = [];
   timer: any;
   totalHits = 0;
@@ -112,10 +112,13 @@ export class UserProfileComponent implements OnInit, AfterViewInit {
     this.apiService.getTnaProjects(searchTerm, pageNumber, pageSize, true, sortTerm, sortDirection).subscribe(
       {
         next: (data) => {
+          console.log(data);
           this.projectsList = data['data'].map((entry: { [x: string]: any; }) => ({
             id: entry['id'],
             title: entry['project_title'],
             pi: entry['principal_investigator']['first_name'] + " " + entry['principal_investigator']['last_name'],
+            participants:  entry['additional_participants'].map((obj: { first_name: any; last_name: any; }) =>
+              `${obj?.first_name} ${obj?.last_name}`).join(', '),
             connected: entry['associated_application'],
             connectedProject: entry['associated_application_title'],
             tnaOwner: parseInt(entry['tna_owner']),

@@ -44,11 +44,6 @@
     </mat-form-field>
 
     <table mat-table  [dataSource]="dataSource" class="mat-elevation-z8" matSort (matSortChange)="customSort($event)">
-      <ng-container matColumnDef="id">
-        <th mat-header-cell *matHeaderCellDef> ID</th>
-        <td mat-cell *matCellDef="let element"> {{ element.id }}</td>
-      </ng-container>
-
       <ng-container matColumnDef="title">
         <th mat-header-cell *matHeaderCellDef mat-sort-header> Title</th>
         <td mat-cell *matCellDef="let element"><a routerLink="/tna/view/{{element.id}}">{{ element.title }} </a></td>
@@ -57,6 +52,11 @@
       <ng-container matColumnDef="pi">
         <th mat-header-cell *matHeaderCellDef> Principal Investigator</th>
         <td mat-cell *matCellDef="let element"> {{ element.pi }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="participants">
+        <th mat-header-cell *matHeaderCellDef> Additional Participants</th>
+        <td mat-cell *matCellDef="let element"> {{ element.participants }}</td>
       </ng-container>
 
       <ng-container matColumnDef="connected">
